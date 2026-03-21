@@ -2,4 +2,117 @@ import type { Application } from './types';
 
 // Only real applications go here.
 // Move a job from searches → applications when you actually apply.
-export const applications: Application[] = [];
+export const applications: Application[] = [
+	{
+		id: 'app-001',
+		company: 'NovaByte',
+		role: 'Senior Frontend Engineer',
+		salary: '$175,000 – $215,000/yr',
+		location: 'Remote',
+		remote: true,
+		status: 'saved',
+		dateApplied: null,
+		dateSaved: '2026-03-21',
+		url: '#',
+		notes: 'Strong match — React + TypeScript platform team. Pull full JD before applying.',
+		jobId: 'r-001'
+	},
+	{
+		id: 'app-002',
+		company: 'Axiom Labs',
+		role: 'Sr. Frontend Engineer — Platform',
+		salary: '$185,000 – $240,000/yr',
+		location: 'Remote',
+		remote: true,
+		status: 'applied',
+		dateApplied: '2026-03-18',
+		dateSaved: '2026-03-17',
+		url: '#',
+		notes: 'Applied via company portal. Tailored cover letter sent. Mentioned streaming data UI experience.',
+		jobId: 'r-002'
+	},
+	{
+		id: 'app-003',
+		company: 'StreamLine',
+		role: 'Senior Software Engineer — Streaming',
+		salary: '$195,000 – $250,000/yr',
+		location: 'Remote',
+		remote: true,
+		status: 'applied',
+		dateApplied: '2026-03-19',
+		dateSaved: '2026-03-16',
+		url: '#',
+		notes: 'Applied via Easy Apply. Referenced video streaming background in cover letter. Good fit on paper.',
+		jobId: 'saved-001'
+	},
+	{
+		id: 'app-004',
+		company: 'HexGrid',
+		role: 'Senior Full Stack Engineer',
+		salary: '$180,000 – $225,000/yr',
+		location: 'Remote',
+		remote: true,
+		status: 'screening',
+		dateApplied: '2026-03-14',
+		dateSaved: '2026-03-13',
+		url: '#',
+		notes: 'Recruiter reached out 3/20. 30-min phone screen scheduled for 3/24. Research team culture before call.',
+		jobId: 'r-007'
+	},
+	{
+		id: 'app-005',
+		company: 'Tensor UI',
+		role: 'Senior React Engineer',
+		salary: '$165,000 – $210,000/yr',
+		location: 'Remote',
+		remote: true,
+		status: 'interview',
+		dateApplied: '2026-03-12',
+		dateSaved: '2026-03-11',
+		url: '#',
+		notes: 'Passed phone screen 3/18. Technical round (take-home) submitted 3/21. Awaiting decision.',
+		jobId: 'r-013'
+	},
+	{
+		id: 'app-006',
+		company: 'CloudForge',
+		role: 'Senior Frontend Engineer, Growth',
+		salary: '$160,000 – $200,000/yr',
+		location: 'Remote',
+		remote: true,
+		status: 'interview',
+		dateApplied: '2026-03-10',
+		dateSaved: '2026-03-09',
+		url: '#',
+		notes: 'Final round scheduled for 2026-03-25 at 2pm ET. Panel interview: eng manager + 2 senior engineers + product. Prep system design + behavioral.',
+		jobId: 'r-004'
+	},
+	{
+		id: 'app-007',
+		company: 'DataWeave',
+		role: 'Full Stack Engineer — Data Platform',
+		salary: '$170,000 – $210,000/yr',
+		location: 'Remote',
+		remote: true,
+		status: 'offer',
+		dateApplied: '2026-03-05',
+		dateSaved: '2026-03-04',
+		url: '#',
+		notes: 'Offer received 3/20: $192k base + $40k RSU/yr + 15% bonus. Decision deadline 3/28. Comparing against pending CloudForge outcome.',
+		jobId: 'r-008'
+	},
+	{
+		id: 'app-008',
+		company: 'Prism Digital',
+		role: 'Frontend Engineer II',
+		salary: '$145,000 – $175,000/yr',
+		location: 'Remote',
+		remote: true,
+		status: 'rejected',
+		dateApplied: '2026-03-01',
+		dateSaved: '2026-02-28',
+		url: '#',
+		notes: 'Rejected after technical round 3/15. Feedback: "Strong fundamentals but wanted more backend depth for their current team needs." Consider revisiting if they post a more frontend-focused role.',
+		jobId: 'r-003'
+	}
+];
