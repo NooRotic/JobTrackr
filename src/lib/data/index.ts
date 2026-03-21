@@ -1,31 +1,38 @@
 /**
  * Data layer switcher.
  *
- * Default: demo data (safe for screenshots and public repo)
- * Personal: VITE_DATA=personal bun run dev
+ * Default: personal data if available, falls back to demo
+ * Toggle: ?demo=true in URL forces demo data (for screenshots)
+ * Toggle: ?demo=false forces personal data
  *
- * To use your real data, copy your files into src/lib/data/personal/
- * and start the dev server with the env var set.
+ * The sidebar has a toggle button for easy switching.
  */
+
+import { browser } from '$app/environment';
 
 // Demo data (always available, committed to repo)
 import { searches as demoSearches } from './searches';
 import { applications as demoApplications } from './applications';
 import { companies as demoCompanies } from './companies';
 import { activity as demoActivity } from './activity';
-import { companyTargets as demoTargets, jobTitleCategories as demoCats, calculateConfidence, priorityFromConfidence } from './targets';
+import {
+	companyTargets as demoTargets,
+	jobTitleCategories as demoCats,
+	calculateConfidence,
+	priorityFromConfidence
+} from './targets';
 import { titleAnalytics as demoAnalytics } from './titleAnalytics';
 
-// Re-export functions (same regardless of data mode)
 export { calculateConfidence, priorityFromConfidence };
 
-// Try personal data if env var is set
-let usePersonal = false;
-try {
-	if (import.meta.env.VITE_DATA === 'personal') {
-		usePersonal = true;
-	}
-} catch {}
+// Check URL param for demo mode
+function isDemoMode(): boolean {
+	if (!browser) return true;
+	const params = new URLSearchParams(window.location.search);
+	if (params.has('demo')) return params.get('demo') !== 'false';
+	// Default: use personal if env var set, otherwise demo
+	return import.meta.env.VITE_DATA !== 'personal';
+}
 
 let searches = demoSearches;
 let applications = demoApplications;
@@ -35,7 +42,7 @@ let companyTargets = demoTargets;
 let jobTitleCategories = demoCats;
 let titleAnalytics = demoAnalytics;
 
-if (usePersonal) {
+if (!isDemoMode()) {
 	try {
 		const p = await import('./personal/searches');
 		searches = p.searches;
@@ -63,7 +70,15 @@ if (usePersonal) {
 	} catch {}
 }
 
-export { searches, applications, companies, activity, companyTargets, jobTitleCategories, titleAnalytics };
+export {
+	searches,
+	applications,
+	companies,
+	activity,
+	companyTargets,
+	jobTitleCategories,
+	titleAnalytics
+};
 
 export type {
 	Application,
