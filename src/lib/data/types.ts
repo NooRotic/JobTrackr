@@ -44,6 +44,7 @@ export interface SearchResult {
 	source?: 'search' | 'saved';
 	easyApply?: boolean;
 	normalizedTitle?: string;
+	jobDescription?: string;
 }
 
 export interface SavedSearch {

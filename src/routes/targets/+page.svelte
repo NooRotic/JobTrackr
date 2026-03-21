@@ -363,6 +363,24 @@
 									</p>
 								</div>
 
+								<!-- Job Description -->
+								{#if job.jobDescription}
+									<div class="rounded-lg p-4" style="background: rgba(255,255,255,0.02); border: 1px solid var(--color-border)">
+										<p class="mb-2 text-xs font-semibold uppercase tracking-wider" style="color: var(--color-neon)">
+											Job Description
+										</p>
+										<div class="max-h-80 overflow-y-auto text-sm leading-relaxed" style="color: var(--color-text-secondary)">
+											<pre class="whitespace-pre-wrap font-sans">{job.jobDescription}</pre>
+										</div>
+									</div>
+								{:else}
+									<div class="rounded-lg px-4 py-3" style="background: rgba(255,255,255,0.02); border: 1px dashed var(--color-border)">
+										<p class="text-xs" style="color: var(--color-text-muted)">
+											JD not yet pulled — ask Claude to run <code style="color: var(--color-neon)">get_job_details</code> for this listing
+										</p>
+									</div>
+								{/if}
+
 								<div class="flex gap-3">
 									{#if job.url !== '#'}
 										<a

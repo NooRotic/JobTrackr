@@ -119,37 +119,10 @@ export const searches: SavedSearch[] = [
 		id: 'search-003',
 		query: 'Chromecast Developer — Remote, US',
 		date: '2026-03-21',
-		totalResults: 3,
-		topLeads: 1,
-		nextSteps: ['Research CastLabs — pull full JD'],
-		results: [
-			{
-				id: 'r-008',
-				role: 'Senior Frontend Engineer (Cast/Smart TV)',
-				company: 'CastLabs',
-				salary: '$160,000 – $190,000/yr',
-				location: 'Remote',
-				remote: true,
-				postedDate: '2026-03-19',
-				url: '#',
-				fit: 'HIGH',
-				priority: 'P1',
-				notes: 'Chromecast CAF experience explicitly listed. Strong match.'
-			},
-			{
-				id: 'r-009',
-				role: 'Senior Software Engineer — TV Platform',
-				company: 'Peacock',
-				salary: '$175,000 – $210,000/yr',
-				location: 'New York, NY',
-				remote: false,
-				postedDate: '2026-03-17',
-				url: '#',
-				fit: 'NEEDS_REVIEW',
-				priority: 'P2',
-				notes: 'TV platform team. Great comp. Not remote but worth exploring.'
-			}
-		]
+		totalResults: 0,
+		topLeads: 0,
+		nextSteps: ['Too niche for Indeed — search LinkedIn and company career pages directly'],
+		results: []
 	},
 	{
 		id: 'search-004',
@@ -171,42 +144,6 @@ export const searches: SavedSearch[] = [
 				fit: 'LOW',
 				priority: 'SKIP',
 				notes: 'Ruby on Rails stack, below salary floor.'
-			}
-		]
-	},
-	{
-		id: 'search-005',
-		query: 'Senior Software Engineer Streaming — Remote, US (Round 2)',
-		date: '2026-03-21',
-		totalResults: 5,
-		topLeads: 2,
-		nextSteps: ['Apply to Mux — strong fit', 'Research Wistia team size and stack'],
-		results: [
-			{
-				id: 'r-011',
-				role: 'Senior Software Engineer — Video Infrastructure',
-				company: 'Mux',
-				salary: '$180,000 – $220,000/yr',
-				location: 'Remote',
-				remote: true,
-				postedDate: '2026-03-20',
-				url: '#',
-				fit: 'HIGH',
-				priority: 'P1',
-				notes: 'Video infra + developer tools. Mux is a top-tier video company. Strong match.'
-			},
-			{
-				id: 'r-012',
-				role: 'Senior Frontend Engineer — Video Platform',
-				company: 'Wistia',
-				salary: '$160,000 – $195,000/yr',
-				location: 'Remote',
-				remote: true,
-				postedDate: '2026-03-18',
-				url: '#',
-				fit: 'HIGH',
-				priority: 'P1',
-				notes: 'Video-focused company, frontend platform role. Likely strong match.'
 			}
 		]
 	},
