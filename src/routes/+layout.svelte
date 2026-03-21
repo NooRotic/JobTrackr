@@ -1,8 +1,28 @@
 <script lang="ts">
 	import './layout.css';
 	import { page } from '$app/stores';
+	import { browser } from '$app/environment';
 
 	let { children } = $props();
+
+	let isDemo = $state(true);
+
+	$effect(() => {
+		if (!browser) return;
+		const params = new URLSearchParams(window.location.search);
+		isDemo = !params.has('demo') || params.get('demo') !== 'false';
+	});
+
+	function toggleDataMode() {
+		if (!browser) return;
+		const url = new URL(window.location.href);
+		if (isDemo) {
+			url.searchParams.set('demo', 'false');
+		} else {
+			url.searchParams.delete('demo');
+		}
+		window.location.href = url.toString();
+	}
 
 	let sidebarOpen = $state(false);
 
@@ -90,19 +110,34 @@
 		</nav>
 
 		<!-- Footer -->
-		<div class="p-4" style="border-top: 1px solid var(--color-border)">
-			<p class="text-xs" style="color: var(--color-text-muted)">
-				Open source — MIT License
-			</p>
-			<a
-				href="https://github.com/NooRotic/JobTrackr"
-				target="_blank"
-				rel="noopener noreferrer"
-				class="mt-1 inline-flex items-center gap-1 text-xs transition-colors hover:text-white"
-				style="color: var(--color-text-muted)"
+		<div class="space-y-3 p-4" style="border-top: 1px solid var(--color-border)">
+			<!-- Data mode toggle -->
+			<button
+				onclick={toggleDataMode}
+				class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition-all"
+				style={isDemo
+					? 'background: rgba(139,92,246,0.1); color: #a78bfa; border: 1px solid rgba(139,92,246,0.25)'
+					: 'background: rgba(57,255,20,0.08); color: var(--color-neon); border: 1px solid rgba(57,255,20,0.2)'}
 			>
-				GitHub ↗
-			</a>
+				<span class="h-2 w-2 rounded-full" style={isDemo ? 'background: #a78bfa' : 'background: var(--color-neon)'}></span>
+				{isDemo ? 'Demo Data' : 'Live Data'}
+				<span class="ml-auto text-[10px] opacity-60">click to swap</span>
+			</button>
+
+			<div>
+				<p class="text-xs" style="color: var(--color-text-muted)">
+					Open source — MIT License
+				</p>
+				<a
+					href="https://github.com/NooRotic/JobTrackr"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="mt-1 inline-flex items-center gap-1 text-xs transition-colors hover:text-white"
+					style="color: var(--color-text-muted)"
+				>
+					GitHub ↗
+				</a>
+			</div>
 		</div>
 	</aside>
 
