@@ -1,8 +1,8 @@
 # JobTrackr
 
-A developer-first job search dashboard. Track applications, run targeted company searches, analyze which job titles actually produce results, and manage your entire pipeline — all from a fast, local-first web app.
+A job search dashboard for engineers who'd rather edit TypeScript than drag cards around in Trello.
 
-Built for developers who want to treat their job search like an engineering problem.
+No magic. No "AI finds your dream job" nonsense. You do the searching, you make the decisions, this gives you a clean interface to track it all and stop losing leads in browser tabs and half-finished spreadsheets.
 
 ![SvelteKit](https://img.shields.io/badge/SvelteKit-5-ff3e00?style=flat-square&logo=svelte)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?style=flat-square&logo=typescript)
@@ -12,28 +12,28 @@ Built for developers who want to treat their job search like an engineering prob
 
 ---
 
-## Why This Exists
+## Who This Is For
 
-Job searching as a developer is chaotic. You're juggling Indeed, LinkedIn, company career pages, spreadsheets, and notes scattered everywhere. JobTrackr puts it all in one place with the features that actually matter:
+You're a developer looking for work. You know what you're worth, you know what stack you want, and you don't need a chatbot to tell you what jobs to apply for. What you need is:
 
-- **Priority tiers** so you focus on P1 roles first, not everything at once
-- **Confidence scoring** so you can objectively compare how well roles match your profile
-- **Title analytics** so you stop wasting searches on keywords that never produce results
-- **Company targeting** so you can deep-dive a specific company across multiple job titles
+- A place to dump search results without them disappearing into the void
+- A way to rank jobs by how well they actually fit your profile — not by Indeed's algorithm
+- A system to track which search terms work and which are a waste of time
+- A dashboard that loads instantly and doesn't ask you to sign up for anything
 
-No database. No auth. No server. Clone it, customize the data files, and run it locally.
+If you want an app that auto-applies to 500 jobs and writes your cover letter, this isn't it. If you want a sharp tool for managing a focused, intentional job search — keep reading.
 
 ---
 
 ## Features
 
-- **Dashboard** — stats overview, application pipeline funnel, recent activity
-- **Searches** — priority-tiered job listings (P1/P2/P3) with expandable results, inline JD display, fit badges
-- **Company Targets** — deep-dive job hunting by company with confidence scoring, company intel (salary, ratings, CEO approval), and strategic fit analysis
-- **Applications** — Kanban board and table view for tracking application status through the pipeline
-- **Companies** — card grid of researched companies with ratings, salary data, culture notes
-- **Title Analytics** — track which job title searches actually produce results vs waste time (Works / Sometimes / Never)
-- **Profile** — career profile with target roles, strengths, gaps, and talking points
+- **Priority Tiers (P1/P2/P3)** — Every job gets a tier. P1 = strong fit, apply now. P2 = worth a look. P3 = you could do it. Skip = don't bother. Focus your energy where it matters.
+- **Company Targets** — Pick a company, see all their open roles scored by confidence %, sorted by fit. Includes company intel (salary averages, CEO approval, interview difficulty) and your strategic angle for each target.
+- **Confidence Scoring** — Auto-calculated 0-100% match based on title keywords, seniority, role type, salary range, and remote availability. Customize the weights in `targets.ts` to match your own profile.
+- **Title Analytics** — Which job title searches actually produce relevant results? Track verdicts (Works / Sometimes / Never) so you stop repeating dead-end queries.
+- **Inline JDs** — Job descriptions render inside the app when available. No tab-switching to Indeed.
+- **Application Pipeline** — Kanban board and table view: Saved → Applied → Screening → Interview → Offer → Closed.
+- **Indeed Saved Jobs Import** — If you can grab the JSON from Indeed's saved jobs API, the data maps directly into the search results format with metadata like `normalizedJobTitle`, `easyApply`, and `expired` status.
 
 ### Priority Tiers
 
@@ -43,10 +43,6 @@ No database. No auth. No server. Clone it, customize the data files, and run it 
 | **P2** | Almost — worth a look | Amber |
 | **P3** | You can do this | Blue |
 | **Skip** | Not a fit | Gray |
-
-### Confidence Scoring
-
-Company target jobs get an auto-calculated **confidence %** (0-100) based on title keywords, seniority level, role type, salary range, remote availability, and domain relevance. Customize the scoring algorithm in `targets.ts` to match your own strengths.
 
 ---
 
@@ -58,7 +54,7 @@ Company target jobs get an auto-calculated **confidence %** (0-100) based on tit
 | Styling | [Tailwind CSS v4](https://tailwindcss.com/) via `@tailwindcss/vite` |
 | Language | [TypeScript](https://www.typescriptlang.org/) — strict, fully typed data layer |
 | Runtime | [Bun](https://bun.sh/) — fast installs, fast dev server |
-| Data | Plain TypeScript files — no database, no auth, fully portable |
+| Data | Plain TypeScript files — no database, no auth, no backend |
 | Theme | Dark mode, `#39FF14` neon green accent |
 
 ---
@@ -66,44 +62,61 @@ Company target jobs get an auto-calculated **confidence %** (0-100) based on tit
 ## Getting Started
 
 ```bash
-# Clone the repo
 git clone https://github.com/NooRotic/JobTrackr.git
 cd JobTrackr
-
-# Install dependencies (requires Bun — https://bun.sh)
 bun install
-
-# Start the dev server
 bun run dev
 ```
 
-Open [http://localhost:5173](http://localhost:5173).
+Open [http://localhost:5173](http://localhost:5173). The app ships with example data so you can see how everything works.
 
 ---
 
-## Customizing for Your Job Search
+## Making It Yours
 
-All data lives in `src/lib/data/`. Plain TypeScript with typed interfaces — no database, no migration, no setup.
+All data lives in `src/lib/data/`. Plain TypeScript files with typed interfaces. No database, no migration, no setup wizard. Open the file, edit the data, save, and the dev server hot-reloads.
 
-| File | What to customize |
+| File | What it does |
 |---|---|
-| `types.ts` | All TypeScript interfaces — extend as needed |
 | `searches.ts` | Your saved job searches with results and priority tiers |
-| `targets.ts` | Company targets, job title categories, confidence scoring weights |
-| `titleAnalytics.ts` | Job title effectiveness tracking (works / sometimes / never) |
+| `targets.ts` | Company targets, job title categories, confidence scoring algorithm |
+| `titleAnalytics.ts` | Job title effectiveness tracking |
 | `applications.ts` | Application pipeline entries |
 | `companies.ts` | Company research cards |
-| `activity.ts` | Recent activity log |
+| `activity.ts` | Activity feed |
+| `types.ts` | All TypeScript interfaces — extend as needed |
 
-The repo ships with **example data** so you can see how everything works. Replace it with your own data to start tracking your search.
-
-### Importing Indeed Saved Jobs
-
-If you grab the JSON from Indeed's saved jobs API (`/api/v1/appStatusJobs`), you can parse it and add entries to `searches.ts`. The JSON includes useful metadata like `normalizedJobTitle`, `indeedApplyable`, and `jobExpired`.
+Replace the example data with your own. That's it.
 
 ### Keeping Your Data Private
 
-Your personal job search data should not be committed to a public repo. Create a `src/lib/data/personal/` directory (already in `.gitignore`) and keep your real data there. Swap the imports in `index.ts` to point at your personal files locally.
+Your real job search data should not live in a public repo. The `.gitignore` already excludes `src/lib/data/personal/`. Keep your real data files there and swap the imports in `index.ts` to point at them locally.
+
+---
+
+## Power User: Claude Code + Indeed MCP
+
+JobTrackr was built alongside [Claude Code](https://claude.ai/code) with the [Indeed MCP plugin](https://docs.anthropic.com/en/docs/agents-and-tools/claude-code). This is entirely optional — the dashboard works fine with manually entered data — but if you have this setup, the workflow gets significantly faster:
+
+**What Claude Code + Indeed MCP enables:**
+- `search_jobs` — Run Indeed searches by keyword, location, and job type. Results map directly into `searches.ts` format.
+- `get_job_details` — Pull full job descriptions by job ID. Populates the `jobDescription` field for inline JD viewing.
+- `get_company_data` — Pull company ratings, salary averages, CEO approval, interview difficulty. Populates company target cards.
+- `get_resume` — Verify how Indeed parsed your uploaded resume.
+
+**The workflow:**
+1. Tell Claude: "Search YouTube for Senior Software Engineer roles"
+2. Claude runs the searches, scores results, assigns priority tiers
+3. Claude writes the results directly into your data files
+4. Dashboard hot-reloads with new results
+
+**What it does NOT do:**
+- Apply for jobs on your behalf
+- Write cover letters or resumes
+- Make decisions about which jobs to pursue
+- Anything automatically — you ask, it executes, you decide
+
+This is a power tool, not an autopilot.
 
 ---
 
@@ -112,8 +125,8 @@ Your personal job search data should not be committed to a public repo. Create a
 ```
 src/
   lib/
-    components/       # Shared UI (StatusBadge, FitBadge, PriorityBadge, StatCard)
-    data/             # All typed data — example data ships with repo
+    components/       # StatusBadge, FitBadge, PriorityBadge, StatCard
+    data/             # All typed data files (example data ships with repo)
       personal/       # Your real data (gitignored)
   routes/
     +layout.svelte    # Root layout with sidebar nav
@@ -141,13 +154,9 @@ Deploy to Vercel, Cloudflare Pages, or any Node host with the appropriate Svelte
 
 ## Contributing
 
-PRs welcome. This is intentionally simple — no database, no auth, no server-side rendering of dynamic data. The goal is a fast, portable dashboard that any developer can fork and run locally in under a minute.
+PRs welcome. This is intentionally minimal — no database, no auth, no server-side rendering of dynamic data. The goal is a fast, portable dashboard that any developer can fork and run locally in under a minute.
 
-Ideas for contribution:
-- LinkedIn data import
-- Browser extension for one-click save from job boards
-- AI-powered JD analysis and fit scoring
-- Persistent storage (SQLite or IndexedDB)
+If you're adding features, keep them opt-in and data-file driven. The core value is simplicity.
 
 ---
 
