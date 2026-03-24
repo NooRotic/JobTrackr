@@ -38,9 +38,35 @@
 		rejected: '#ef4444'
 	};
 
-	// Get applied job IDs to filter out already-applied leads
+	// Get applied job IDs and URLs to filter out already-applied leads
 	const appliedJobIds = new Set(applications.map((a) => a.jobId).filter(Boolean));
 	const appliedUrls = new Set(applications.map((a) => a.url).filter((u) => u && u !== '#'));
+	// Also extract Indeed job keys from URLs for cross-format matching
+	const appliedIndeedKeys = new Set(
+		[...appliedUrls, ...applications.map((a) => a.url)].filter(Boolean).map((u) => {
+			const match = u.match(/[?&]jk=([a-f0-9]+)/);
+			return match ? match[1] : null;
+		}).filter(Boolean) as string[]
+	);
+
+	function isAlreadyApplied(url: string, id?: string): boolean {
+		if (id && appliedJobIds.has(id)) return true;
+		if (url !== '#' && appliedUrls.has(url)) return true;
+		// Check Indeed job key across different URL formats
+		const keyMatch = url.match(/[?&]jk=([a-f0-9]+)/);
+		if (keyMatch && appliedIndeedKeys.has(keyMatch[1])) return true;
+		// Check if indeed.com/to.indeed.com point to same job
+		const shortMatch = url.match(/to\.indeed\.com\/([a-z0-9]+)/);
+		if (shortMatch) {
+			// Can't reliably match short URLs to full URLs, but check company+role dedup below
+		}
+		return false;
+	}
+
+	// Also deduplicate by company+role combo
+	const appliedCompanyRoles = new Set(
+		applications.map((a) => `${a.company.toLowerCase()}|${a.role.toLowerCase()}`)
+	);
 
 	// Collect ALL P1 leads from searches + company targets, excluding already applied
 	interface Lead {
@@ -63,7 +89,8 @@
 	for (const search of searches) {
 		for (const r of search.results) {
 			if (r.priority === 'SKIP') continue;
-			if (r.url !== '#' && appliedUrls.has(r.url)) continue;
+			if (isAlreadyApplied(r.url)) continue;
+			if (appliedCompanyRoles.has(`${r.company.toLowerCase()}|${r.role.toLowerCase()}`)) continue;
 			if (r.expired) continue;
 			allLeads.push({
 				...r,
@@ -76,7 +103,8 @@
 	for (const target of companyTargets) {
 		for (const job of target.jobs) {
 			if (job.priority === 'SKIP') continue;
-			if (job.url !== '#' && appliedUrls.has(job.url)) continue;
+			if (isAlreadyApplied(job.url)) continue;
+			if (appliedCompanyRoles.has(`${job.company.toLowerCase()}|${job.role.toLowerCase()}`)) continue;
 			if (job.expired) continue;
 			// Avoid duplicates (same URL already from searches)
 			if (allLeads.some((l) => l.url === job.url && job.url !== '#')) continue;
