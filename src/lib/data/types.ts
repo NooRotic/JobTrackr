@@ -41,6 +41,9 @@ export interface SearchResult {
 	priority: Priority;
 	notes: string;
 	expired?: boolean;
+	expiredOn?: string;
+	altUrl?: string;
+	altUrlLabel?: string;
 	source?: 'search' | 'saved';
 	easyApply?: boolean;
 	normalizedTitle?: string;
