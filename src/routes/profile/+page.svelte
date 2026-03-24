@@ -1,36 +1,5 @@
 <script lang="ts">
-	const profile = {
-		name: 'Your Name',
-		github: 'your-github',
-		title: 'Senior Software Engineer',
-		headline: 'Video streaming · Frontend platform · AI-native workflow',
-		salaryFloor: '$165,000',
-		preferredLocation: 'Remote (US)',
-		targetRoles: [
-			'Senior Video Engineer',
-			'Senior SWE — Streaming',
-			'Senior Frontend Engineer',
-			'Chromecast / Smart TV Developer'
-		],
-		strengths: [
-			'HLS / DASH streaming protocols',
-			'Chromecast Application Framework (CAF)',
-			'Video player engineering (custom + Shaka, Video.js)',
-			'Real-time debugging tooling at scale',
-			'AI-native development workflow',
-			'TypeScript / SvelteKit / React',
-			'Performance optimization & Core Web Vitals',
-			'Frontend platform & design systems'
-		],
-		gaps: ['Angular', 'Kotlin / Android', 'Formal ML / model training', 'Go backend'],
-		talkingPoints: [
-			'Built custom HLS player with adaptive bitrate logic from scratch — reduced buffering 40%',
-			'Shipped Chromecast CAF receiver for a major media client — millions of daily sessions',
-			"AI-native workflow: Claude Code in every stage of the dev loop. I've 10x'd my own throughput",
-			'Debugging tooling at scale — built internal dashboards that cut P1 video incident MTTR by 60%',
-			'Open source: created and maintain a SvelteKit component library (2,000+ GitHub stars)'
-		]
-	};
+	import { profile } from '$lib/data';
 
 	const sections = [
 		{ id: 'overview', label: 'Overview' },
@@ -217,7 +186,7 @@
 		style="background: rgba(255,255,255,0.02); border: 1px dashed var(--color-border)"
 	>
 		<p class="text-xs" style="color: var(--color-text-muted)">
-			To personalize this profile, edit <code class="rounded px-1" style="background: rgba(255,255,255,0.06); color: var(--color-text-secondary)">/src/routes/profile/+page.svelte</code> — update the profile object at the top of the file.
+			To personalize this profile, edit <code class="rounded px-1" style="background: rgba(255,255,255,0.06); color: var(--color-text-secondary)">src/lib/data/personal/profile.ts</code> — or <code class="rounded px-1" style="background: rgba(255,255,255,0.06); color: var(--color-text-secondary)">src/lib/data/profile.ts</code> for demo data. Uses the data switcher.
 		</p>
 	</div>
 </div>

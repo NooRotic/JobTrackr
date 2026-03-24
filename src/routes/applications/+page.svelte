@@ -1,10 +1,25 @@
 <script lang="ts">
-	import { applications } from '$lib/data';
+	import { applications as initialApps } from '$lib/data';
 	import StatusBadge from '$lib/components/StatusBadge.svelte';
 	import type { Application, ApplicationStatus } from '$lib/data/types';
 
 	type ViewMode = 'kanban' | 'table';
 	let viewMode = $state<ViewMode>('kanban');
+	let showAddForm = $state(false);
+	let editingStatus = $state<string | null>(null);
+
+	// Mutable local copy so we can add/edit during session
+	let apps = $state<Application[]>([...initialApps]);
+
+	// Add form fields
+	let newCompany = $state('');
+	let newRole = $state('');
+	let newSalary = $state('');
+	let newLocation = $state('');
+	let newRemote = $state(true);
+	let newUrl = $state('');
+	let newNotes = $state('');
+	let newSource = $state<'indeed' | 'linkedin' | 'company-site' | 'other'>('company-site');
 
 	const columns: { status: ApplicationStatus; label: string; color: string }[] = [
 		{ status: 'saved', label: 'Saved', color: '#6366f1' },
@@ -15,11 +30,13 @@
 		{ status: 'rejected', label: 'Closed', color: '#ef4444' }
 	];
 
+	const allStatuses: ApplicationStatus[] = ['saved', 'applied', 'screening', 'interview', 'offer', 'accepted', 'rejected'];
+
 	const grouped = $derived(
 		Object.fromEntries(
 			columns.map((col) => [
 				col.status,
-				applications.filter((a) => {
+				apps.filter((a) => {
 					if (col.status === 'rejected') return a.status === 'rejected' || a.status === 'accepted';
 					return a.status === col.status;
 				})
@@ -28,6 +45,56 @@
 	);
 
 	let selectedApp = $state<Application | null>(null);
+
+	function addApplication() {
+		if (!newCompany || !newRole) return;
+		const app: Application = {
+			id: `app-${Date.now()}`,
+			company: newCompany,
+			role: newRole,
+			salary: newSalary || 'Not listed',
+			location: newRemote ? 'Remote' : newLocation,
+			remote: newRemote,
+			status: 'saved',
+			dateApplied: null,
+			dateSaved: new Date().toISOString().split('T')[0],
+			url: newUrl || '#',
+			notes: `Source: ${newSource}${newNotes ? '. ' + newNotes : ''}`,
+		};
+		apps = [app, ...apps];
+		resetForm();
+	}
+
+	function resetForm() {
+		newCompany = '';
+		newRole = '';
+		newSalary = '';
+		newLocation = '';
+		newRemote = true;
+		newUrl = '';
+		newNotes = '';
+		newSource = 'company-site';
+		showAddForm = false;
+	}
+
+	function updateStatus(appId: string, newStatus: ApplicationStatus) {
+		apps = apps.map((a) => {
+			if (a.id !== appId) return a;
+			return {
+				...a,
+				status: newStatus,
+				dateApplied: newStatus === 'applied' && !a.dateApplied
+					? new Date().toISOString().split('T')[0]
+					: a.dateApplied
+			};
+		});
+		editingStatus = null;
+	}
+
+	function removeApp(appId: string) {
+		apps = apps.filter((a) => a.id !== appId);
+		selectedApp = null;
+	}
 </script>
 
 <svelte:head>
@@ -42,31 +109,113 @@
 				Applications
 			</h1>
 			<p class="mt-1 text-sm" style="color: var(--color-text-secondary)">
-				{applications.length} total · {applications.filter((a) => a.status !== 'saved' && a.status !== 'rejected').length} active
+				{apps.length} total · {apps.filter((a) => a.status !== 'saved' && a.status !== 'rejected').length} active
 			</p>
 		</div>
 
-		<!-- View toggle -->
-		<div
-			class="flex rounded-lg p-1"
-			style="background: var(--color-bg-card); border: 1px solid var(--color-border)"
-		>
-			{#each [
-				{ mode: 'kanban', label: 'Kanban', icon: '▦' },
-				{ mode: 'table', label: 'Table', icon: '☰' }
-			] as v}
-				<button
-					onclick={() => (viewMode = v.mode as ViewMode)}
-					class="rounded-md px-3 py-1.5 text-xs font-medium transition-all"
-					style={viewMode === v.mode
-						? 'background: rgba(57,255,20,0.12); color: var(--color-neon)'
-						: 'color: var(--color-text-secondary)'}
-				>
-					{v.icon} {v.label}
-				</button>
-			{/each}
+		<div class="flex gap-2">
+			<!-- Add job button -->
+			<button
+				onclick={() => (showAddForm = !showAddForm)}
+				class="rounded-lg px-4 py-2 text-sm font-medium transition-all"
+				style={showAddForm
+					? 'background: rgba(57,255,20,0.12); color: var(--color-neon); border: 1px solid rgba(57,255,20,0.25)'
+					: 'background: rgba(57,255,20,0.08); color: var(--color-neon); border: 1px solid rgba(57,255,20,0.2)'}
+			>
+				{showAddForm ? '✕ Cancel' : '+ Add Job'}
+			</button>
+
+			<!-- View toggle -->
+			<div
+				class="flex rounded-lg p-1"
+				style="background: var(--color-bg-card); border: 1px solid var(--color-border)"
+			>
+				{#each [
+					{ mode: 'kanban', label: 'Kanban', icon: '▦' },
+					{ mode: 'table', label: 'Table', icon: '☰' }
+				] as v}
+					<button
+						onclick={() => (viewMode = v.mode as ViewMode)}
+						class="rounded-md px-3 py-1.5 text-xs font-medium transition-all"
+						style={viewMode === v.mode
+							? 'background: rgba(57,255,20,0.12); color: var(--color-neon)'
+							: 'color: var(--color-text-secondary)'}
+					>
+						{v.icon} {v.label}
+					</button>
+				{/each}
+			</div>
 		</div>
 	</div>
+
+	<!-- Add Job Form -->
+	{#if showAddForm}
+		<div class="card space-y-4 p-5">
+			<p class="text-sm font-semibold" style="color: var(--color-text-primary)">Add a job (any source)</p>
+
+			<div class="grid gap-3 sm:grid-cols-2">
+				<div>
+					<label class="mb-1 block text-xs font-medium" style="color: var(--color-text-muted)">Company *</label>
+					<input bind:value={newCompany} placeholder="e.g. Netflix" class="w-full rounded-lg px-3 py-2 text-sm"
+						style="background: rgba(255,255,255,0.05); color: var(--color-text-primary); border: 1px solid var(--color-border)" />
+				</div>
+				<div>
+					<label class="mb-1 block text-xs font-medium" style="color: var(--color-text-muted)">Role *</label>
+					<input bind:value={newRole} placeholder="e.g. Senior Software Engineer" class="w-full rounded-lg px-3 py-2 text-sm"
+						style="background: rgba(255,255,255,0.05); color: var(--color-text-primary); border: 1px solid var(--color-border)" />
+				</div>
+				<div>
+					<label class="mb-1 block text-xs font-medium" style="color: var(--color-text-muted)">Salary</label>
+					<input bind:value={newSalary} placeholder="e.g. $180,000 - $240,000/yr" class="w-full rounded-lg px-3 py-2 text-sm"
+						style="background: rgba(255,255,255,0.05); color: var(--color-text-primary); border: 1px solid var(--color-border)" />
+				</div>
+				<div>
+					<label class="mb-1 block text-xs font-medium" style="color: var(--color-text-muted)">URL</label>
+					<input bind:value={newUrl} placeholder="Job posting link" class="w-full rounded-lg px-3 py-2 text-sm"
+						style="background: rgba(255,255,255,0.05); color: var(--color-text-primary); border: 1px solid var(--color-border)" />
+				</div>
+				<div>
+					<label class="mb-1 block text-xs font-medium" style="color: var(--color-text-muted)">Source</label>
+					<select bind:value={newSource} class="w-full rounded-lg px-3 py-2 text-sm"
+						style="background: rgba(255,255,255,0.05); color: var(--color-text-primary); border: 1px solid var(--color-border)">
+						<option value="indeed">Indeed</option>
+						<option value="linkedin">LinkedIn</option>
+						<option value="company-site">Company Careers Page</option>
+						<option value="other">Other</option>
+					</select>
+				</div>
+				<div>
+					<label class="mb-1 block text-xs font-medium" style="color: var(--color-text-muted)">Location</label>
+					<div class="flex items-center gap-3">
+						<label class="flex items-center gap-1.5 text-xs" style="color: var(--color-text-secondary)">
+							<input type="checkbox" bind:checked={newRemote} /> Remote
+						</label>
+						{#if !newRemote}
+							<input bind:value={newLocation} placeholder="City, State" class="flex-1 rounded-lg px-3 py-2 text-sm"
+								style="background: rgba(255,255,255,0.05); color: var(--color-text-primary); border: 1px solid var(--color-border)" />
+						{/if}
+					</div>
+				</div>
+			</div>
+
+			<div>
+				<label class="mb-1 block text-xs font-medium" style="color: var(--color-text-muted)">Notes</label>
+				<textarea bind:value={newNotes} rows="2" placeholder="Why this role? Initial thoughts..." class="w-full rounded-lg px-3 py-2 text-sm"
+					style="background: rgba(255,255,255,0.05); color: var(--color-text-primary); border: 1px solid var(--color-border)"></textarea>
+			</div>
+
+			<button
+				onclick={addApplication}
+				disabled={!newCompany || !newRole}
+				class="rounded-lg px-5 py-2 text-sm font-medium transition-all"
+				style={newCompany && newRole
+					? 'background: rgba(57,255,20,0.12); color: var(--color-neon); border: 1px solid rgba(57,255,20,0.25)'
+					: 'background: rgba(255,255,255,0.03); color: var(--color-text-muted); border: 1px solid var(--color-border); cursor: not-allowed'}
+			>
+				Save to Pipeline
+			</button>
+		</div>
+	{/if}
 
 	{#if viewMode === 'kanban'}
 		<!-- Kanban board -->
@@ -91,63 +240,93 @@
 					<!-- Cards -->
 					<div class="space-y-3">
 						{#each cards as app}
-							<button
-								onclick={() => (selectedApp = selectedApp?.id === app.id ? null : app)}
-								class="card card-hover w-full cursor-pointer p-4 text-left"
+							<div
+								class="card w-full p-4 text-left"
 								style={selectedApp?.id === app.id ? 'border-color: rgba(57,255,20,0.35); box-shadow: 0 0 0 1px rgba(57,255,20,0.15)' : ''}
 							>
-								<div class="flex items-start justify-between gap-2">
-									<div class="min-w-0">
-										<p class="truncate text-sm font-semibold" style="color: var(--color-text-primary)">
-											{app.company}
-										</p>
-										<p class="mt-0.5 truncate text-xs" style="color: var(--color-text-secondary)">
-											{app.role}
-										</p>
+								<button
+									onclick={() => (selectedApp = selectedApp?.id === app.id ? null : app)}
+									class="w-full text-left"
+								>
+									<div class="flex items-start justify-between gap-2">
+										<div class="min-w-0">
+											<p class="truncate text-sm font-semibold" style="color: var(--color-text-primary)">
+												{app.company}
+											</p>
+											<p class="mt-0.5 truncate text-xs" style="color: var(--color-text-secondary)">
+												{app.role}
+											</p>
+										</div>
+										{#if app.remote}
+											<span class="shrink-0 text-xs" style="color: var(--color-text-muted)" title="Remote">🌐</span>
+										{/if}
 									</div>
-									{#if app.remote}
-										<span class="shrink-0 text-xs" style="color: var(--color-text-muted)" title="Remote">🌐</span>
+
+									<div class="mt-3 flex flex-wrap gap-2">
+										<span class="text-xs font-medium" style="color: var(--color-neon)">
+											{app.salary !== 'Not listed' ? app.salary.split(' – ')[0] + '+' : 'Salary TBD'}
+										</span>
+									</div>
+
+									{#if app.dateApplied}
+										<p class="mt-2 text-xs" style="color: var(--color-text-muted)">
+											Applied {app.dateApplied}
+										</p>
+									{:else}
+										<p class="mt-2 text-xs" style="color: var(--color-text-muted)">
+											Saved {app.dateSaved}
+										</p>
 									{/if}
-								</div>
+								</button>
 
-								<div class="mt-3 flex flex-wrap gap-2">
-									<span class="text-xs font-medium" style="color: var(--color-neon)">
-										{app.salary.split(' – ')[0]}+
-									</span>
-								</div>
+								<!-- Expanded details -->
+								{#if selectedApp?.id === app.id}
+									<div class="mt-3 space-y-3 border-t pt-3" style="border-color: var(--color-border)">
+										{#if app.notes}
+											<p class="text-xs leading-relaxed" style="color: var(--color-text-secondary)">
+												{app.notes}
+											</p>
+										{/if}
 
-								{#if app.dateApplied}
-									<p class="mt-2 text-xs" style="color: var(--color-text-muted)">
-										Applied {app.dateApplied}
-									</p>
-								{:else}
-									<p class="mt-2 text-xs" style="color: var(--color-text-muted)">
-										Saved {app.dateSaved}
-									</p>
+										<!-- Status changer -->
+										<div>
+											<p class="mb-1.5 text-xs font-medium" style="color: var(--color-text-muted)">Move to:</p>
+											<div class="flex flex-wrap gap-1.5">
+												{#each allStatuses.filter((s) => s !== app.status) as status}
+													<button
+														onclick={() => updateStatus(app.id, status)}
+														class="rounded px-2 py-1 text-xs font-medium transition-all hover:opacity-80"
+														style="background: rgba(255,255,255,0.06); color: var(--color-text-secondary); border: 1px solid var(--color-border)"
+													>
+														{status}
+													</button>
+												{/each}
+											</div>
+										</div>
+
+										<div class="flex gap-2">
+											{#if app.url && app.url !== '#'}
+												<a
+													href={app.url}
+													target="_blank"
+													rel="noopener noreferrer"
+													class="text-xs transition-colors hover:opacity-80"
+													style="color: var(--color-neon)"
+												>
+													View listing ↗
+												</a>
+											{/if}
+											<button
+												onclick={() => removeApp(app.id)}
+												class="text-xs transition-colors hover:opacity-80"
+												style="color: #ef4444"
+											>
+												Remove
+											</button>
+										</div>
+									</div>
 								{/if}
-
-								<!-- Expanded notes -->
-								{#if selectedApp?.id === app.id && app.notes}
-									<p
-										class="mt-3 border-t pt-3 text-xs leading-relaxed"
-										style="color: var(--color-text-secondary); border-color: var(--color-border)"
-									>
-										{app.notes}
-									</p>
-									{#if app.url && app.url !== '#'}
-										<a
-											href={app.url}
-											target="_blank"
-											rel="noopener noreferrer"
-											onclick={(e) => e.stopPropagation()}
-											class="mt-2 inline-flex items-center gap-1 text-xs transition-colors hover:opacity-80"
-											style="color: var(--color-neon)"
-										>
-											View listing ↗
-										</a>
-									{/if}
-								{/if}
-							</button>
+							</div>
 						{/each}
 
 						{#if cards.length === 0}
@@ -178,17 +357,18 @@
 						</tr>
 					</thead>
 					<tbody>
-						{#each applications as app, i}
+						{#each apps as app, i}
 							<tr
-								class="transition-colors hover:bg-white/[0.02]"
-								style={i < applications.length - 1 ? 'border-bottom: 1px solid var(--color-border)' : ''}
+								class="cursor-pointer transition-colors hover:bg-white/[0.02]"
+								style={i < apps.length - 1 ? 'border-bottom: 1px solid var(--color-border)' : ''}
+								onclick={() => (selectedApp = selectedApp?.id === app.id ? null : app)}
 							>
 								<td class="px-4 py-3 font-medium" style="color: var(--color-text-primary)">{app.company}</td>
 								<td class="px-4 py-3 max-w-[220px]" style="color: var(--color-text-secondary)">
 									<span class="block truncate">{app.role}</span>
 								</td>
 								<td class="px-4 py-3 whitespace-nowrap text-xs font-medium" style="color: var(--color-neon)">
-									{app.salary.split(' – ')[0]}+
+									{app.salary !== 'Not listed' ? app.salary.split(' – ')[0] + '+' : 'TBD'}
 								</td>
 								<td class="px-4 py-3">
 									<StatusBadge status={app.status} />
@@ -200,10 +380,47 @@
 									{app.remote ? '🌐' : '—'}
 								</td>
 							</tr>
+							{#if selectedApp?.id === app.id}
+								<tr style="border-bottom: 1px solid var(--color-border)">
+									<td colspan="6" class="px-4 py-3" style="background: rgba(255,255,255,0.015)">
+										<div class="space-y-3">
+											{#if app.notes}
+												<p class="text-xs leading-relaxed" style="color: var(--color-text-secondary)">{app.notes}</p>
+											{/if}
+											<div class="flex flex-wrap items-center gap-2">
+												<span class="text-xs font-medium" style="color: var(--color-text-muted)">Move to:</span>
+												{#each allStatuses.filter((s) => s !== app.status) as status}
+													<button
+														onclick={(e) => { e.stopPropagation(); updateStatus(app.id, status); }}
+														class="rounded px-2 py-1 text-xs font-medium transition-all hover:opacity-80"
+														style="background: rgba(255,255,255,0.06); color: var(--color-text-secondary); border: 1px solid var(--color-border)"
+													>
+														{status}
+													</button>
+												{/each}
+												{#if app.url && app.url !== '#'}
+													<a href={app.url} target="_blank" rel="noopener noreferrer"
+														onclick={(e) => e.stopPropagation()}
+														class="text-xs" style="color: var(--color-neon)">View listing ↗</a>
+												{/if}
+												<button onclick={(e) => { e.stopPropagation(); removeApp(app.id); }}
+													class="text-xs" style="color: #ef4444">Remove</button>
+											</div>
+										</div>
+									</td>
+								</tr>
+							{/if}
 						{/each}
 					</tbody>
 				</table>
 			</div>
 		</div>
 	{/if}
+
+	<!-- Note about persistence -->
+	<div class="rounded-xl p-4" style="background: rgba(255,255,255,0.02); border: 1px dashed var(--color-border)">
+		<p class="text-xs" style="color: var(--color-text-muted)">
+			Changes made here persist during this browser session. To save permanently, update <code style="color: var(--color-neon)">src/lib/data/personal/applications.ts</code> or ask Claude to add entries.
+		</p>
+	</div>
 </div>
