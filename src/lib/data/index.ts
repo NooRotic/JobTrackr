@@ -22,6 +22,7 @@ import {
 	priorityFromConfidence
 } from './targets';
 import { titleAnalytics as demoAnalytics } from './titleAnalytics';
+import { profile as demoProfile } from './profile';
 
 export { calculateConfidence, priorityFromConfidence };
 
@@ -41,6 +42,7 @@ let activity = demoActivity;
 let companyTargets = demoTargets;
 let jobTitleCategories = demoCats;
 let titleAnalytics = demoAnalytics;
+let profile = demoProfile;
 
 if (!isDemoMode()) {
 	try {
@@ -68,6 +70,10 @@ if (!isDemoMode()) {
 		const p = await import('./personal/titleAnalytics');
 		titleAnalytics = p.titleAnalytics;
 	} catch {}
+	try {
+		const p = await import('./personal/profile');
+		profile = p.profile;
+	} catch {}
 }
 
 export {
@@ -77,7 +83,8 @@ export {
 	activity,
 	companyTargets,
 	jobTitleCategories,
-	titleAnalytics
+	titleAnalytics,
+	profile
 };
 
 export type {
