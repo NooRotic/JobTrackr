@@ -1,8 +1,9 @@
 <script lang="ts">
-	import { applications, searches, activity } from '$lib/data';
+	import { applications, searches, activity, companyTargets, calculateConfidence } from '$lib/data';
 	import StatusBadge from '$lib/components/StatusBadge.svelte';
+	import PriorityBadge from '$lib/components/PriorityBadge.svelte';
 	import StatCard from '$lib/components/StatCard.svelte';
-	import type { ApplicationStatus } from '$lib/data/types';
+	import type { ApplicationStatus, SearchResult } from '$lib/data/types';
 
 	// Computed stats
 	const totalApplications = applications.filter((a) => a.status !== 'saved').length;
@@ -37,6 +38,68 @@
 		rejected: '#ef4444'
 	};
 
+	// Get applied job IDs to filter out already-applied leads
+	const appliedJobIds = new Set(applications.map((a) => a.jobId).filter(Boolean));
+	const appliedUrls = new Set(applications.map((a) => a.url).filter((u) => u && u !== '#'));
+
+	// Collect ALL P1 leads from searches + company targets, excluding already applied
+	interface Lead {
+		role: string;
+		company: string;
+		salary: string;
+		location: string;
+		remote: boolean;
+		url: string;
+		priority: string;
+		notes: string;
+		source: string;
+		confidence?: number;
+		expired?: boolean;
+	}
+
+	const allLeads: Lead[] = [];
+
+	// From searches
+	for (const search of searches) {
+		for (const r of search.results) {
+			if (r.priority === 'SKIP') continue;
+			if (r.url !== '#' && appliedUrls.has(r.url)) continue;
+			if (r.expired) continue;
+			allLeads.push({
+				...r,
+				source: `Search: ${search.query.split('—')[0].trim()}`
+			});
+		}
+	}
+
+	// From company targets
+	for (const target of companyTargets) {
+		for (const job of target.jobs) {
+			if (job.priority === 'SKIP') continue;
+			if (job.url !== '#' && appliedUrls.has(job.url)) continue;
+			if (job.expired) continue;
+			// Avoid duplicates (same URL already from searches)
+			if (allLeads.some((l) => l.url === job.url && job.url !== '#')) continue;
+			allLeads.push({
+				...job,
+				source: `Target: ${target.name}`,
+				confidence: calculateConfidence(job)
+			});
+		}
+	}
+
+	// Sort: P1 first, then P2, then P3. Within tier, by confidence or salary
+	const priorityOrder = { P1: 0, P2: 1, P3: 2, SKIP: 3 };
+	const sortedLeads = allLeads.sort((a, b) => {
+		const pa = priorityOrder[a.priority as keyof typeof priorityOrder] ?? 3;
+		const pb = priorityOrder[b.priority as keyof typeof priorityOrder] ?? 3;
+		if (pa !== pb) return pa - pb;
+		return (b.confidence ?? 0) - (a.confidence ?? 0);
+	});
+
+	const topLeads = sortedLeads.slice(0, 8);
+	const p1Count = allLeads.filter((l) => l.priority === 'P1').length;
+
 	// Recent activity (latest 6)
 	const recentActivity = activity.slice(0, 6);
 
@@ -47,9 +110,6 @@
 		interview: '◆',
 		offer: '★'
 	};
-
-	// Recent searches
-	const recentSearches = searches.slice(0, 3);
 </script>
 
 <svelte:head>
@@ -69,82 +129,115 @@
 
 	<!-- Stats grid -->
 	<div class="stagger-children grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-		<StatCard label="Total Applications" value={totalApplications} icon="◎" trend="Since Feb 2026" />
-		<StatCard label="Active Searches" value={activeSearches} icon="⌕" />
-		<StatCard label="Interviews Scheduled" value={interviewsScheduled} icon="◆" accent={true} />
-		<StatCard label="Offers" value={offers} icon="★" />
+		<StatCard label="Applied" value={totalApplications} icon="◎" trend="{applications.filter(a => a.status === 'applied').length} pending response" />
+		<StatCard label="P1 Leads" value={p1Count} icon="★" accent={true} />
+		<StatCard label="Interviews" value={interviewsScheduled} icon="◆" />
+		<StatCard label="Offers" value={offers} icon="✓" />
 	</div>
 
-	<!-- Pipeline -->
+	<!-- Top Leads — Apply Now -->
 	<div class="card p-6">
-		<h2 class="mb-6 text-sm font-semibold uppercase tracking-widest" style="color: var(--color-text-secondary)">
-			Application Pipeline
-		</h2>
-
-		<!-- Funnel bars -->
-		<div class="mb-4 flex items-end gap-3">
-			{#each pipelineCounts as stage}
-				<div class="flex flex-1 flex-col items-center gap-2">
-					<span class="text-lg font-bold tabular-nums" style="color: var(--color-text-primary)">
-						{stage.count}
-					</span>
-					<div class="relative w-full overflow-hidden rounded-t-sm" style="height: 80px; background: rgba(255,255,255,0.04)">
-						<div
-							class="absolute bottom-0 w-full rounded-t-sm transition-all duration-700 ease-out"
-							style="height: {(stage.count / maxPipelineCount) * 100}%; background: {statusColors[stage.status]}; opacity: 0.85"
-						></div>
-					</div>
-				</div>
-			{/each}
+		<div class="mb-5 flex items-center justify-between">
+			<div>
+				<h2 class="text-sm font-semibold uppercase tracking-widest" style="color: var(--color-neon)">
+					Top Leads — Apply Now
+				</h2>
+				<p class="mt-1 text-xs" style="color: var(--color-text-muted)">
+					{p1Count} P1 leads across searches and company targets · excludes already applied
+				</p>
+			</div>
+			<a href="/searches" class="text-xs transition-colors hover:text-white" style="color: var(--color-text-muted)">
+				All searches →
+			</a>
 		</div>
 
-		<!-- Labels -->
-		<div class="flex gap-3">
-			{#each pipelineCounts as stage}
-				<div class="flex flex-1 flex-col items-center">
-					<span class="text-center text-xs font-medium" style="color: var(--color-text-secondary)">
-						{stage.label}
-					</span>
-				</div>
-			{/each}
-		</div>
-
-		<!-- Flow chips -->
-		<div class="mt-6 flex items-center gap-2 overflow-x-auto pb-1">
-			{#each pipelineCounts as stage, i}
-				<div class="flex min-w-0 flex-1 items-center">
+		{#if topLeads.length === 0}
+			<p class="py-8 text-center text-sm" style="color: var(--color-text-muted)">
+				No unapplied leads. Run more searches or check company targets.
+			</p>
+		{:else}
+			<div class="space-y-2">
+				{#each topLeads as lead}
 					<div
-						class="flex w-full items-center justify-center rounded-lg py-2 px-3 text-xs font-medium"
-						style="background: {statusColors[stage.status]}18; border: 1px solid {statusColors[stage.status]}33; color: {statusColors[stage.status]}"
+						class="flex flex-col gap-2 rounded-lg p-4 sm:flex-row sm:items-center sm:justify-between"
+						style="background: rgba(255,255,255,0.02); border: 1px solid {lead.priority === 'P1' ? 'rgba(57,255,20,0.15)' : 'var(--color-border)'}"
 					>
-						{stage.label}
-						<span class="ml-1.5 font-bold">{stage.count}</span>
+						<div class="min-w-0 flex-1">
+							<div class="flex flex-wrap items-center gap-2">
+								<span class="text-sm font-semibold" style="color: var(--color-text-primary)">{lead.role}</span>
+								<PriorityBadge priority={lead.priority} />
+								{#if lead.confidence}
+									<span class="text-xs font-bold" style="color: {lead.confidence >= 65 ? '#39FF14' : lead.confidence >= 45 ? '#f59e0b' : '#0ea5e9'}">
+										{lead.confidence}%
+									</span>
+								{/if}
+							</div>
+							<div class="mt-1 flex flex-wrap items-center gap-3">
+								<span class="text-xs" style="color: var(--color-text-secondary)">{lead.company}</span>
+								<span class="text-xs font-medium" style="color: var(--color-neon)">
+									{lead.salary !== 'Not listed' ? lead.salary : 'Salary TBD'}
+								</span>
+								<span class="text-xs" style="color: var(--color-text-muted)">
+									{lead.remote ? '🌐 Remote' : lead.location}
+								</span>
+								<span class="rounded-full px-2 py-0.5 text-[10px]"
+									style="background: rgba(255,255,255,0.04); color: var(--color-text-muted)">
+									{lead.source}
+								</span>
+							</div>
+						</div>
+						{#if lead.url !== '#'}
+							<a
+								href={lead.url}
+								target="_blank"
+								rel="noopener noreferrer"
+								class="shrink-0 rounded-lg px-4 py-2 text-xs font-medium transition-all hover:opacity-80"
+								style="background: rgba(57,255,20,0.12); color: var(--color-neon); border: 1px solid rgba(57,255,20,0.25)"
+							>
+								Apply ↗
+							</a>
+						{/if}
 					</div>
-				</div>
-				{#if i < pipelineCounts.length - 1}
-					<span class="shrink-0 text-xs" style="color: var(--color-text-muted)">→</span>
-				{/if}
-			{/each}
-			<span class="shrink-0 text-xs" style="color: var(--color-text-muted)">→</span>
-			<div
-				class="flex min-w-0 flex-1 items-center justify-center rounded-lg py-2 px-3 text-xs font-medium"
-				style="background: rgba(57,255,20,0.08); border: 1px solid rgba(57,255,20,0.2); color: var(--color-neon)"
-			>
-				Offer ✓
+				{/each}
+			</div>
+		{/if}
+	</div>
+
+	<!-- Pipeline + Activity -->
+	<div class="grid gap-6 lg:grid-cols-2">
+		<!-- Pipeline -->
+		<div class="card p-6">
+			<h2 class="mb-5 text-sm font-semibold uppercase tracking-widest" style="color: var(--color-text-secondary)">
+				Pipeline
+			</h2>
+			<div class="mb-4 flex items-end gap-3">
+				{#each pipelineCounts as stage}
+					<div class="flex flex-1 flex-col items-center gap-2">
+						<span class="text-lg font-bold tabular-nums" style="color: var(--color-text-primary)">
+							{stage.count}
+						</span>
+						<div class="relative w-full overflow-hidden rounded-t-sm" style="height: 60px; background: rgba(255,255,255,0.04)">
+							<div
+								class="absolute bottom-0 w-full rounded-t-sm transition-all duration-700 ease-out"
+								style="height: {(stage.count / maxPipelineCount) * 100}%; background: {statusColors[stage.status]}; opacity: 0.85"
+							></div>
+						</div>
+						<span class="text-center text-xs font-medium" style="color: var(--color-text-secondary)">
+							{stage.label}
+						</span>
+					</div>
+				{/each}
 			</div>
 		</div>
-	</div>
 
-	<!-- Bottom grid: activity + recent searches -->
-	<div class="grid gap-6 lg:grid-cols-2">
 		<!-- Activity feed -->
 		<div class="card p-6">
 			<div class="mb-5 flex items-center justify-between">
 				<h2 class="text-sm font-semibold uppercase tracking-widest" style="color: var(--color-text-secondary)">
 					Recent Activity
 				</h2>
-				<a href="/applications" class="text-xs transition-colors hover:text-white" style="color: var(--color-text-muted)">
-					View all →
+				<a href="/status" class="text-xs transition-colors hover:text-white" style="color: var(--color-text-muted)">
+					Full status →
 				</a>
 			</div>
 
@@ -172,55 +265,19 @@
 				{/each}
 			</div>
 		</div>
-
-		<!-- Recent searches -->
-		<div class="card p-6">
-			<div class="mb-5 flex items-center justify-between">
-				<h2 class="text-sm font-semibold uppercase tracking-widest" style="color: var(--color-text-secondary)">
-					Recent Searches
-				</h2>
-				<a href="/searches" class="text-xs transition-colors hover:text-white" style="color: var(--color-text-muted)">
-					View all →
-				</a>
-			</div>
-
-			<div class="space-y-3">
-				{#each recentSearches as search}
-					<a
-						href="/searches"
-						class="card-hover block rounded-lg p-3 transition-all"
-						style="background: rgba(255,255,255,0.03); border: 1px solid var(--color-border)"
-					>
-						<p class="text-sm font-medium leading-snug" style="color: var(--color-text-primary)">
-							{search.query}
-						</p>
-						<div class="mt-2 flex items-center gap-3">
-							<span class="text-xs" style="color: var(--color-text-muted)">{search.date}</span>
-							<span class="text-xs" style="color: var(--color-text-muted)">
-								{search.results.length} results
-							</span>
-							{#if search.topLeads > 0}
-								<span class="text-xs font-medium" style="color: var(--color-neon)">
-									{search.topLeads} high-fit
-								</span>
-							{/if}
-						</div>
-					</a>
-				{/each}
-			</div>
-		</div>
 	</div>
 
 	<!-- Quick links -->
-	<div class="grid gap-4 sm:grid-cols-3">
+	<div class="grid gap-4 sm:grid-cols-4">
 		{#each [
-			{ href: '/applications', label: 'Track Applications', desc: 'Kanban board view', icon: '◎' },
-			{ href: '/searches', label: 'Browse Searches', desc: 'All saved search results', icon: '⌕' },
-			{ href: '/companies', label: 'Company Research', desc: 'Ratings, culture, salary', icon: '⬡' }
+			{ href: '/applications', label: 'Applications', desc: 'Kanban + table', icon: '◎' },
+			{ href: '/targets', label: 'Targets', desc: 'Company deep-dive', icon: '◎' },
+			{ href: '/searches', label: 'Searches', desc: 'P1/P2/P3 results', icon: '⌕' },
+			{ href: '/status', label: 'Status', desc: 'Progress + next steps', icon: '⚡' }
 		] as link}
-			<a href={link.href} class="card card-hover group flex items-center gap-4 p-5">
+			<a href={link.href} class="card card-hover group flex items-center gap-3 p-4">
 				<div
-					class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-xl transition-colors"
+					class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-sm transition-colors"
 					style="background: rgba(57,255,20,0.08); color: var(--color-neon)"
 				>
 					{link.icon}
@@ -230,7 +287,7 @@
 					<p class="text-xs" style="color: var(--color-text-muted)">{link.desc}</p>
 				</div>
 				<span
-					class="ml-auto text-lg opacity-0 transition-all group-hover:translate-x-1 group-hover:opacity-100"
+					class="ml-auto text-sm opacity-0 transition-all group-hover:translate-x-1 group-hover:opacity-100"
 					style="color: var(--color-neon)"
 				>→</span>
 			</a>
