@@ -2,6 +2,7 @@
 	import { applications, searches, activity, companyTargets, calculateConfidence } from '$lib/data';
 	import StatusBadge from '$lib/components/StatusBadge.svelte';
 	import PriorityBadge from '$lib/components/PriorityBadge.svelte';
+	import DeployBadge from '$lib/components/DeployBadge.svelte';
 	import StatCard from '$lib/components/StatCard.svelte';
 	import type { ApplicationStatus, SearchResult } from '$lib/data/types';
 
@@ -10,6 +11,11 @@
 	const activeSearches = searches.length;
 	const interviewsScheduled = applications.filter((a) => a.status === 'interview').length;
 	const offers = applications.filter((a) => a.status === 'offer' || a.status === 'accepted').length;
+
+	// Ready to submit — saved with deploy-ready packages
+	const readyToSubmit = applications.filter((a) => a.status === 'saved' && a.deployStatus === 'deploy-ready');
+	// Research — saved positions to investigate further
+	const researchList = applications.filter((a) => a.status === 'saved' && a.deployStatus === 'research');
 
 	// Pipeline stages
 	const pipeline: { status: ApplicationStatus; label: string }[] = [
@@ -162,6 +168,83 @@
 		<StatCard label="Interviews" value={interviewsScheduled} icon="◆" />
 		<StatCard label="Offers" value={offers} icon="✓" />
 	</div>
+
+	<!-- Ready to Submit — deploy packages built, not yet applied -->
+	{#if readyToSubmit.length > 0}
+		<div class="card p-6" style="border-color: rgba(57,255,20,0.25)">
+			<div class="mb-4">
+				<h2 class="text-sm font-semibold uppercase tracking-widest" style="color: var(--color-neon)">
+					Ready to Submit ({readyToSubmit.length})
+				</h2>
+				<p class="mt-1 text-xs" style="color: var(--color-text-muted)">
+					Deploy packages built — review and apply
+				</p>
+			</div>
+			<div class="space-y-2">
+				{#each readyToSubmit as app}
+					<div class="flex flex-col gap-2 rounded-lg p-4 sm:flex-row sm:items-center sm:justify-between"
+						style="background: rgba(57,255,20,0.03); border: 1px solid rgba(57,255,20,0.12)">
+						<div class="min-w-0 flex-1">
+							<div class="flex flex-wrap items-center gap-2">
+								<span class="text-sm font-semibold" style="color: var(--color-text-primary)">{app.company}</span>
+								<DeployBadge status={app.deployStatus} />
+								{#if app.remote}
+									<span class="text-xs" style="color: var(--color-text-muted)">🌐 Remote</span>
+								{/if}
+							</div>
+							<p class="mt-0.5 text-xs" style="color: var(--color-text-secondary)">{app.role}</p>
+							<p class="mt-1 text-xs" style="color: var(--color-neon)">{app.salary}</p>
+						</div>
+						<a href={app.url} target="_blank" rel="noopener noreferrer"
+							class="shrink-0 rounded-lg px-4 py-2 text-xs font-medium transition-all hover:opacity-80"
+							style="background: rgba(57,255,20,0.12); color: var(--color-neon); border: 1px solid rgba(57,255,20,0.25)">
+							Apply Now ↗
+						</a>
+					</div>
+				{/each}
+			</div>
+		</div>
+	{/if}
+
+	<!-- Research — positions to investigate -->
+	{#if researchList.length > 0}
+		<div class="card p-6" style="border-color: rgba(139,92,246,0.2)">
+			<div class="mb-4">
+				<h2 class="text-sm font-semibold uppercase tracking-widest" style="color: #a78bfa">
+					Research ({researchList.length})
+				</h2>
+				<p class="mt-1 text-xs" style="color: var(--color-text-muted)">
+					Positions to investigate — no deploy package yet
+				</p>
+			</div>
+			<div class="space-y-2">
+				{#each researchList as app}
+					<div class="flex flex-col gap-2 rounded-lg p-4 sm:flex-row sm:items-center sm:justify-between"
+						style="background: rgba(139,92,246,0.03); border: 1px solid rgba(139,92,246,0.1)">
+						<div class="min-w-0 flex-1">
+							<div class="flex flex-wrap items-center gap-2">
+								<span class="text-sm font-semibold" style="color: var(--color-text-primary)">{app.company}</span>
+								<DeployBadge status={app.deployStatus} />
+								{#if app.remote}
+									<span class="text-xs" style="color: var(--color-text-muted)">🌐 Remote</span>
+								{/if}
+							</div>
+							<p class="mt-0.5 text-xs" style="color: var(--color-text-secondary)">{app.role}</p>
+							<div class="mt-1 flex flex-wrap gap-3">
+								<span class="text-xs" style="color: var(--color-text-muted)">{app.salary}</span>
+								<span class="text-xs" style="color: var(--color-text-muted)">{app.location}</span>
+							</div>
+						</div>
+						<a href={app.url} target="_blank" rel="noopener noreferrer"
+							class="shrink-0 rounded-lg px-4 py-2 text-xs font-medium transition-all hover:opacity-80"
+							style="background: rgba(139,92,246,0.1); color: #a78bfa; border: 1px solid rgba(139,92,246,0.2)">
+							View Job ↗
+						</a>
+					</div>
+				{/each}
+			</div>
+		</div>
+	{/if}
 
 	<!-- Top Leads — Apply Now -->
 	<div class="card p-6">
