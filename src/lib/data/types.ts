@@ -13,6 +13,9 @@ export type FitRating = 'HIGH' | 'MEDIUM' | 'LOW' | 'NEEDS_REVIEW';
 export type Priority = 'P1' | 'P2' | 'P3' | 'SKIP';
 
 
+/** Readiness state for an application */
+export type DeployStatus = 'deploy-ready' | 'research' | 'none';
+
 export interface Application {
 	id: string;
 	company: string;
@@ -26,6 +29,8 @@ export interface Application {
 	url: string;
 	notes: string;
 	jobId?: string;
+	deployStatus?: DeployStatus;
+	deployPath?: string;
 }
 
 export interface SearchResult {
