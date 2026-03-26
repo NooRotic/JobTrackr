@@ -12,7 +12,7 @@
 	--color-border-strong: #ffffff22;
 	--color-text-primary: #f0f0f4;
 	--color-text-secondary: #9999aa;
-	--color-text-muted: #555566;
+	--color-text-muted: #7a7a8e;
 	--color-status-saved: #6366f1;
 	--color-status-applied: #3b82f6;
 	--color-status-screening: #f59e0b;
@@ -155,4 +155,19 @@ body {
 }
 .stagger-children > *:nth-child(n + 7) {
 	animation-delay: 360ms;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+	.animate-fade-in,
+	.stagger-children > * {
+		animation: none;
+		opacity: 1;
+	}
+	.card-hover {
+		transition: none;
+	}
+	.card-hover:hover {
+		transform: none;
+	}
 }
