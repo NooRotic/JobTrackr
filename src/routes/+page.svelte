@@ -1,7 +1,8 @@
 <script lang="ts">
-	import { applications, searches, activity, companyTargets, calculateConfidence } from '$lib/data';
+	import { applications, searches, activity, companyTargets, titleAnalytics, calculateConfidence } from '$lib/data';
 	import StatusBadge from '$lib/components/StatusBadge.svelte';
 	import PriorityBadge from '$lib/components/PriorityBadge.svelte';
+	import DeployBadge from '$lib/components/DeployBadge.svelte';
 	import StatCard from '$lib/components/StatCard.svelte';
 	import type { ApplicationStatus, SearchResult, Priority } from '$lib/data/types';
 
@@ -10,6 +11,18 @@
 	const activeSearches = searches.length;
 	const interviewsScheduled = applications.filter((a) => a.status === 'interview').length;
 	const offers = applications.filter((a) => a.status === 'offer' || a.status === 'accepted').length;
+	const companiesTargeted = companyTargets.length;
+	const totalSearchResults = searches.reduce((sum, s) => sum + s.results.length, 0);
+
+	// Recent submitted applications (not saved, most recent first)
+	const recentApps = applications
+		.filter((a) => a.status !== 'saved')
+		.slice(0, 5);
+
+	// Up Next — data-driven from deploy-ready saved apps
+	const upNext = applications
+		.filter((a) => a.status === 'saved' && a.deployStatus === 'deploy-ready')
+		.slice(0, 4);
 
 	// Pipeline stages
 	const pipeline: { status: ApplicationStatus; label: string }[] = [
@@ -156,11 +169,13 @@
 	</div>
 
 	<!-- Stats grid -->
-	<div class="stagger-children grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-		<StatCard label="Applied" value={totalApplications} icon="◎" trend="{applications.filter(a => a.status === 'applied').length} pending response" />
+	<div class="stagger-children grid gap-3 sm:grid-cols-3 xl:grid-cols-6">
+		<StatCard label="Applied" value={totalApplications} icon="◎" trend="{applications.filter(a => a.status === 'applied').length} pending" />
 		<StatCard label="P1 Leads" value={p1Count} icon="★" accent={true} />
 		<StatCard label="Interviews" value={interviewsScheduled} icon="◆" />
 		<StatCard label="Offers" value={offers} icon="✓" />
+		<StatCard label="Searches" value={activeSearches} icon="⌕" trend="{totalSearchResults} results" />
+		<StatCard label="Targets" value={companiesTargeted} icon="◎" />
 	</div>
 
 	<!-- Top Leads — Apply Now -->
@@ -231,6 +246,67 @@
 		{/if}
 	</div>
 
+	<!-- Up Next + Recent Applications -->
+	<div class="grid gap-6 lg:grid-cols-2">
+		<!-- Up Next — deploy-ready, not yet applied -->
+		{#if upNext.length > 0}
+			<div class="card p-6" style="border-color: rgba(57,255,20,0.15)">
+				<h2 class="mb-4 text-sm font-semibold uppercase tracking-widest" style="color: var(--color-neon)">
+					Up Next — Ready to Submit
+				</h2>
+				<div class="space-y-3">
+					{#each upNext as app}
+						<div class="flex items-center gap-3 rounded-lg p-3" style="background: rgba(57,255,20,0.03); border: 1px solid rgba(57,255,20,0.1)">
+							<div class="min-w-0 flex-1">
+								<div class="flex items-center gap-2">
+									<span class="text-sm font-semibold" style="color: var(--color-text-primary)">{app.company}</span>
+									<DeployBadge status={app.deployStatus} />
+								</div>
+								<p class="mt-0.5 text-xs" style="color: var(--color-text-secondary)">{app.role}</p>
+								<p class="mt-0.5 text-xs" style="color: var(--color-neon)">{app.salary}</p>
+							</div>
+							{#if app.url && app.url !== '#'}
+								<a href={app.url} target="_blank" rel="noopener noreferrer"
+									class="shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium"
+									style="background: rgba(57,255,20,0.12); color: var(--color-neon); border: 1px solid rgba(57,255,20,0.25)">
+									Apply ↗
+								</a>
+							{/if}
+						</div>
+					{/each}
+				</div>
+			</div>
+		{/if}
+
+		<!-- Recent Applications -->
+		{#if recentApps.length > 0}
+			<div class="card p-6">
+				<div class="mb-4 flex items-center justify-between">
+					<h2 class="text-sm font-semibold uppercase tracking-widest" style="color: var(--color-text-secondary)">
+						Recent Applications
+					</h2>
+					<a href="/applications" class="text-xs transition-colors hover:text-white" style="color: var(--color-text-muted)">
+						All applications →
+					</a>
+				</div>
+				<div class="space-y-3">
+					{#each recentApps as app}
+						<div class="flex items-center gap-3 rounded-lg p-3" style="background: rgba(255,255,255,0.02); border: 1px solid var(--color-border)">
+							<div class="min-w-0 flex-1">
+								<div class="flex items-center gap-2">
+									<span class="text-sm font-semibold" style="color: var(--color-text-primary)">{app.company}</span>
+									<StatusBadge status={app.status} />
+								</div>
+								<p class="mt-0.5 text-xs" style="color: var(--color-text-secondary)">{app.role}</p>
+							</div>
+							<span class="shrink-0 text-xs" style="color: var(--color-text-muted)">{app.dateApplied}</span>
+						</div>
+					{/each}
+				</div>
+			</div>
+		{/if}
+	</div>
+
 	<!-- Pipeline + Activity -->
 	<div class="grid gap-6 lg:grid-cols-2">
 		<!-- Pipeline -->
@@ -264,8 +340,8 @@
 				<h2 class="text-sm font-semibold uppercase tracking-widest" style="color: var(--color-text-secondary)">
 					Recent Activity
 				</h2>
-				<a href="/status" class="text-xs transition-colors hover:text-white" style="color: var(--color-text-muted)">
-					Full status →
+				<a href="/applications" class="text-xs transition-colors hover:text-white" style="color: var(--color-text-muted)">
+					All applications →
 				</a>
 			</div>
 
