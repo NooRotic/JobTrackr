@@ -28,7 +28,6 @@
 		{ href: '/applications', label: 'Applications', icon: '▣' },
 		{ href: '/companies', label: 'Companies', icon: '⬡' },
 		{ href: '/analytics', label: 'Analytics', icon: '◆' },
-		{ href: '/status', label: 'Status', icon: '⚡' },
 		{ href: '/profile', label: 'Profile', icon: '◉' }
 	];
 
