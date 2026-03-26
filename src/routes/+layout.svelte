@@ -5,23 +5,18 @@
 
 	let { children } = $props();
 
-	let isDemo = $state(true);
+	let isDemo = $state(false);
 
 	$effect(() => {
 		if (!browser) return;
-		const params = new URLSearchParams(window.location.search);
-		isDemo = !params.has('demo') || params.get('demo') !== 'false';
+		isDemo = localStorage.getItem('jobtrackr-demo') === 'true';
 	});
 
 	function toggleDataMode() {
 		if (!browser) return;
-		const url = new URL(window.location.href);
-		if (isDemo) {
-			url.searchParams.set('demo', 'false');
-		} else {
-			url.searchParams.delete('demo');
-		}
-		window.location.href = url.toString();
+		const newMode = !isDemo;
+		localStorage.setItem('jobtrackr-demo', newMode ? 'true' : 'false');
+		window.location.href = window.location.pathname;
 	}
 
 	let sidebarOpen = $state(false);
