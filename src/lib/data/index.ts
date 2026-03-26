@@ -26,13 +26,16 @@ import { profile as demoProfile } from './profile';
 
 export { calculateConfidence, priorityFromConfidence };
 
-// Check URL param for demo mode
+// Check demo mode: URL param overrides localStorage, localStorage persists across reloads
 function isDemoMode(): boolean {
-	if (!browser) return true;
+	if (!browser) return false;
 	const params = new URLSearchParams(window.location.search);
-	if (params.has('demo')) return params.get('demo') !== 'false';
-	// Default: use personal if env var set, otherwise demo
-	return import.meta.env.VITE_DATA !== 'personal';
+	if (params.has('demo')) {
+		const val = params.get('demo') === 'true';
+		localStorage.setItem('jobtrackr-demo', val ? 'true' : 'false');
+		return val;
+	}
+	return localStorage.getItem('jobtrackr-demo') === 'true';
 }
 
 let searches = demoSearches;
