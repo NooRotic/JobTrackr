@@ -6,7 +6,7 @@
 	import type { ApplicationStatus, SearchResult, Priority } from '$lib/data/types';
 
 	// Computed stats
-	const totalApplications = applications.filter((a) => a.status !== 'saved').length;
+	const totalApplications = applications.filter((a) => a.status !== 'saved' && a.status !== 'rejected' && a.status !== 'accepted').length;
 	const activeSearches = searches.length;
 	const interviewsScheduled = applications.filter((a) => a.status === 'interview').length;
 	const offers = applications.filter((a) => a.status === 'offer' || a.status === 'accepted').length;
@@ -295,30 +295,4 @@
 		</div>
 	</div>
 
-	<!-- Quick links -->
-	<div class="grid gap-4 sm:grid-cols-4">
-		{#each [
-			{ href: '/applications', label: 'Applications', desc: 'Kanban + table', icon: '◎' },
-			{ href: '/targets', label: 'Targets', desc: 'Company deep-dive', icon: '◎' },
-			{ href: '/searches', label: 'Searches', desc: 'P1/P2/P3 results', icon: '⌕' },
-			{ href: '/status', label: 'Status', desc: 'Progress + next steps', icon: '⚡' }
-		] as link}
-			<a href={link.href} class="card card-hover group flex items-center gap-3 p-4">
-				<div
-					class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-sm transition-colors"
-					style="background: rgba(57,255,20,0.08); color: var(--color-neon)"
-				>
-					{link.icon}
-				</div>
-				<div>
-					<p class="text-sm font-semibold" style="color: var(--color-text-primary)">{link.label}</p>
-					<p class="text-xs" style="color: var(--color-text-muted)">{link.desc}</p>
-				</div>
-				<span
-					class="ml-auto text-sm opacity-0 transition-all group-hover:translate-x-1 group-hover:opacity-100"
-					style="color: var(--color-neon)"
-				>→</span>
-			</a>
-		{/each}
-	</div>
 </div>
