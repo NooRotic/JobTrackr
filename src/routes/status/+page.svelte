@@ -8,6 +8,7 @@
 	const totalSearchResults = searches.reduce((sum, s) => sum + s.results.length, 0);
 	const p1Results = searches.flatMap((s) => s.results).filter((r) => r.priority === 'P1');
 	const worksTitle = titleAnalytics.filter((t) => t.verdict === 'works');
+	const submittedApps = applications.filter((a) => a.status !== 'saved');
 
 	const sessionLog = [
 		{
@@ -84,11 +85,11 @@
 		<h2 class="mb-4 text-sm font-semibold uppercase tracking-widest" style="color: var(--color-neon)">
 			Applications Submitted
 		</h2>
-		{#if applications.length === 0}
+		{#if submittedApps.length === 0}
 			<p class="text-sm" style="color: var(--color-text-muted)">No applications yet. Start applying!</p>
 		{:else}
 			<div class="space-y-3">
-				{#each applications as app, i}
+				{#each submittedApps as app, i}
 					<div
 						class="flex flex-col gap-2 rounded-lg p-4 sm:flex-row sm:items-center sm:justify-between"
 						style="background: rgba(255,255,255,0.02); border: 1px solid var(--color-border)"

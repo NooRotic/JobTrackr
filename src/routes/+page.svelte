@@ -3,7 +3,7 @@
 	import StatusBadge from '$lib/components/StatusBadge.svelte';
 	import PriorityBadge from '$lib/components/PriorityBadge.svelte';
 	import StatCard from '$lib/components/StatCard.svelte';
-	import type { ApplicationStatus, SearchResult } from '$lib/data/types';
+	import type { ApplicationStatus, SearchResult, Priority } from '$lib/data/types';
 
 	// Computed stats
 	const totalApplications = applications.filter((a) => a.status !== 'saved').length;
@@ -76,7 +76,7 @@
 		location: string;
 		remote: boolean;
 		url: string;
-		priority: string;
+		priority: Priority;
 		notes: string;
 		source: string;
 		confidence?: number;
