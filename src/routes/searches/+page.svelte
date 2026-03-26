@@ -1,13 +1,26 @@
 <script lang="ts">
-	import { searches } from '$lib/data';
+	import { searches, applications } from '$lib/data';
 	import FitBadge from '$lib/components/FitBadge.svelte';
 	import PriorityBadge from '$lib/components/PriorityBadge.svelte';
-	import type { Priority, SearchResult, SavedSearch } from '$lib/data/types';
+	import type { Priority, SearchResult, SavedSearch, Application } from '$lib/data/types';
 
 	type TabValue = 'P1' | 'P2' | 'P3' | 'ALL';
 
 	let activeTab = $state<TabValue>('P1');
 	let expandedId = $state<string | null>(null);
+
+	// Track URLs saved this session (supplements static applications data)
+	let sessionSaved = $state<string[]>([]);
+
+	function isAlreadySaved(url: string): boolean {
+		if (url === '#') return false;
+		return applications.some((a) => a.url === url) || sessionSaved.includes(url);
+	}
+
+	function saveToApplications(result: SearchResult) {
+		if (isAlreadySaved(result.url)) return;
+		sessionSaved = [...sessionSaved, result.url];
+	}
 
 	function toggle(id: string) {
 		expandedId = expandedId === id ? null : id;
@@ -250,10 +263,14 @@
 									</a>
 								{/if}
 								<button
-									class="rounded-lg px-4 py-2 text-sm font-medium transition-all hover:bg-white/[0.06]"
-									style="background: rgba(255,255,255,0.04); color: var(--color-text-secondary); border: 1px solid var(--color-border)"
+									onclick={() => saveToApplications(result)}
+									disabled={isAlreadySaved(result.url)}
+									class="rounded-lg px-4 py-2 text-sm font-medium transition-all"
+									style={isAlreadySaved(result.url)
+										? 'background: rgba(57,255,20,0.08); color: var(--color-neon); border: 1px solid rgba(57,255,20,0.2); cursor: default; opacity: 0.7'
+										: 'background: rgba(255,255,255,0.04); color: var(--color-text-secondary); border: 1px solid var(--color-border)'}
 								>
-									Save to Applications
+									{isAlreadySaved(result.url) ? 'Saved ✓' : 'Save to Applications'}
 								</button>
 							</div>
 						</div>

@@ -27,7 +27,8 @@
 		{ status: 'screening', label: 'Screening', color: '#f59e0b' },
 		{ status: 'interview', label: 'Interview', color: '#8b5cf6' },
 		{ status: 'offer', label: 'Offer', color: '#10b981' },
-		{ status: 'rejected', label: 'Closed', color: '#ef4444' }
+		{ status: 'accepted', label: 'Accepted', color: '#39ff14' },
+		{ status: 'rejected', label: 'Rejected', color: '#ef4444' }
 	];
 
 	const allStatuses: ApplicationStatus[] = ['saved', 'applied', 'screening', 'interview', 'offer', 'accepted', 'rejected'];
@@ -36,10 +37,7 @@
 		Object.fromEntries(
 			columns.map((col) => [
 				col.status,
-				apps.filter((a) => {
-					if (col.status === 'rejected') return a.status === 'rejected' || a.status === 'accepted';
-					return a.status === col.status;
-				})
+				apps.filter((a) => a.status === col.status)
 			])
 		) as Record<ApplicationStatus, Application[]>
 	);
