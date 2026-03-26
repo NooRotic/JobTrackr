@@ -66,7 +66,7 @@
 	<!-- Header -->
 	<div>
 		<h1 class="text-2xl font-bold tracking-tight" style="color: var(--color-text-primary)">
-			Job Board
+			Searches
 		</h1>
 		<p class="mt-1 text-sm" style="color: var(--color-text-secondary)">
 			{p1Results.length} strong fits · {p2Results.length} worth a look · {p3Results.length} you can do
