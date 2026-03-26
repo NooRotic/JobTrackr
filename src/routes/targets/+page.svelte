@@ -1,6 +1,7 @@
 <script lang="ts">
-	import { companyTargets, jobTitleCategories, calculateConfidence } from '$lib/data';
+	import { companyTargets, jobTitleCategories, calculateConfidence, applications } from '$lib/data';
 	import PriorityBadge from '$lib/components/PriorityBadge.svelte';
+	import type { SearchResult } from '$lib/data/types';
 
 	let activeTarget = $state(companyTargets[0]?.slug ?? '');
 	let expandedJobId = $state<string | null>(null);
@@ -49,6 +50,19 @@
 
 	function confidenceBarWidth(pct: number): string {
 		return `${Math.max(4, pct)}%`;
+	}
+
+	// Track URLs saved this session
+	let sessionSaved = $state<string[]>([]);
+
+	function isAlreadySaved(url: string): boolean {
+		if (url === '#') return false;
+		return applications.some((a) => a.url === url) || sessionSaved.includes(url);
+	}
+
+	function saveToApplications(job: SearchResult) {
+		if (isAlreadySaved(job.url)) return;
+		sessionSaved = [...sessionSaved, job.url];
 	}
 </script>
 
@@ -394,10 +408,14 @@
 										</a>
 									{/if}
 									<button
-										class="rounded-lg px-4 py-2 text-sm font-medium transition-all hover:bg-white/[0.06]"
-										style="background: rgba(255,255,255,0.04); color: var(--color-text-secondary); border: 1px solid var(--color-border)"
+										onclick={() => saveToApplications(job)}
+										disabled={isAlreadySaved(job.url)}
+										class="rounded-lg px-4 py-2 text-sm font-medium transition-all"
+										style={isAlreadySaved(job.url)
+											? 'background: rgba(57,255,20,0.08); color: var(--color-neon); border: 1px solid rgba(57,255,20,0.2); cursor: default; opacity: 0.7'
+											: 'background: rgba(255,255,255,0.04); color: var(--color-text-secondary); border: 1px solid var(--color-border)'}
 									>
-										Save to Applications
+										{isAlreadySaved(job.url) ? 'Saved ✓' : 'Save to Applications'}
 									</button>
 								</div>
 							</div>
