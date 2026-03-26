@@ -30,9 +30,9 @@ export { calculateConfidence, priorityFromConfidence };
 function isDemoMode(): boolean {
 	if (!browser) return true;
 	const params = new URLSearchParams(window.location.search);
-	if (params.has('demo')) return params.get('demo') !== 'false';
-	// Default: use personal if env var set, otherwise demo
-	return import.meta.env.VITE_DATA !== 'personal';
+	if (params.has('demo')) return params.get('demo') === 'true';
+	// Default: use personal data, add ?demo=true for demo
+	return false;
 }
 
 let searches = demoSearches;

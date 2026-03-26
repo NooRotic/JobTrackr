@@ -151,12 +151,42 @@ A chat panel inside JobTrackr where you can have working sessions like we do in 
 
 ---
 
+## API Integrations (Long-Term / SaaS Path)
+
+### Indeed GraphQL Partner API
+- **Endpoint:** `POST https://apis.indeed.com/graphql` (OAuth 2-legged)
+- **Docs:** https://docs.indeed.com/api/graphql_schema (requires partner auth)
+- **Three APIs available:**
+  - **Job Sync API** — create, update, expire job postings. Mutations: `createSourcedJobPostings`, `expireSourcedJobsBySourcedPostingId`. Structured data: salary, qualifications, benefits, employer info.
+  - **Disposition Sync API** — send/receive application status updates (hired, rejected, interviewing). Mutation: `partnerDisposition.send`.
+  - **Employer Data API** — access employer/company data programmatically.
+- **Simulated environment:** https://simulated-apis.indeed.com/graphql (for testing)
+- **Current value:** Low for personal job search (partner/employer API, not job seeker)
+- **Future value:** High if JobTrackr goes multi-user/SaaS — job posting sync, disposition tracking, structured employer data
+- **Blocker:** Requires Indeed Partner account + OAuth credentials. Not available to individual developers currently.
+- **LOE:** Research phase — need to investigate partner onboarding process
+
+### Greenhouse API
+- Greenhouse boards are publicly accessible (job-boards.greenhouse.io/{company})
+- Could build a scraper/fetcher for target companies' open roles
+- Auto-refresh company target listings on a schedule
+- **LOE: 3-4 hrs** per company integration
+
+### Google Careers / Netflix Jobs
+- Both render via JS — need headless browser or find API endpoints
+- Netflix explore.jobs.netflix.net has a REST-ish API behind the scenes
+- Google Careers uses a proprietary frontend, harder to automate
+- **LOE: Research needed**
+
+---
+
 ## Priority Order (suggested)
 
 1. **GitHub Pages deployment** — quick win, portfolio value
-2. **JD Analyzer** — immediate job search value
+2. **Claude API chat (Option A) + JD Analyzer** — chat panel with built-in JD analysis, cover letter gen, fit assessment. JD Analyzer is a natural first feature of the chat.
 3. **Template System** — saves time on every new application
-4. **Claude API chat (Option A)** — game changer for workflow
 5. **SQLite backend** — needed before multi-user or heavy CRUD
 6. **Drag-and-drop kanban** — polish
 7. **Multi-platform search** — ambitious, save for later
+8. **Indeed GraphQL integration** — SaaS path, needs partner access
+9. **Greenhouse auto-refresh** — useful now, moderate effort
