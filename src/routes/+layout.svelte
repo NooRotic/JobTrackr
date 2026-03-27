@@ -23,6 +23,7 @@
 
 	const navItems = [
 		{ href: '/', label: 'Dashboard', icon: '◈' },
+		{ href: '/pipeline', label: 'Pipeline', icon: '⚡' },
 		{ href: '/searches', label: 'Searches', icon: '⌕' },
 		{ href: '/targets', label: 'Targets', icon: '◎' },
 		{ href: '/applications', label: 'Applications', icon: '▣' },
