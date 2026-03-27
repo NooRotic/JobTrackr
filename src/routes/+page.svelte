@@ -168,144 +168,134 @@
 		</p>
 	</div>
 
-	<!-- Stats grid -->
-	<div class="stagger-children grid gap-3 sm:grid-cols-3 xl:grid-cols-6">
-		<StatCard label="Applied" value={totalApplications} icon="◎" trend="{applications.filter(a => a.status === 'applied').length} pending" />
-		<StatCard label="P1 Leads" value={p1Count} icon="★" accent={true} />
-		<StatCard label="Interviews" value={interviewsScheduled} icon="◆" />
-		<StatCard label="Offers" value={offers} icon="✓" />
-		<StatCard label="Searches" value={activeSearches} icon="⌕" trend="{totalSearchResults} results" />
-		<StatCard label="Targets" value={companiesTargeted} icon="◎" />
+	<!-- Stats grid — compact, clickable -->
+	<div class="stagger-children grid grid-cols-3 gap-2 sm:grid-cols-6">
+		<StatCard label="Applied" value={totalApplications} icon="◎" trend="{applications.filter(a => a.status === 'applied').length} pending" href="/applications" />
+		<StatCard label="P1 Leads" value={p1Count} icon="★" accent={true} href="/searches" />
+		<StatCard label="Interviews" value={interviewsScheduled} icon="◆" href="/applications" />
+		<StatCard label="Offers" value={offers} icon="✓" href="/applications" />
+		<StatCard label="Searches" value={activeSearches} icon="⌕" trend="{totalSearchResults} results" href="/searches" />
+		<StatCard label="Targets" value={companiesTargeted} icon="◎" href="/targets" />
 	</div>
 
-	<!-- Top Leads — Apply Now -->
-	<div class="card p-6">
-		<div class="mb-5 flex items-center justify-between">
-			<div>
-				<h2 class="text-sm font-semibold uppercase tracking-widest" style="color: var(--color-neon)">
-					Top Leads — Apply Now
-				</h2>
-				<p class="mt-1 text-xs" style="color: var(--color-text-muted)">
-					{p1Count} P1 leads across searches and company targets · excludes already applied
-				</p>
-			</div>
-			<a href="/searches" class="text-xs transition-colors hover:text-white" style="color: var(--color-text-muted)">
-				All searches →
-			</a>
-		</div>
-
-		{#if topLeads.length === 0}
-			<p class="py-8 text-center text-sm" style="color: var(--color-text-muted)">
-				No unapplied leads. Run more searches or check company targets.
-			</p>
-		{:else}
-			<div class="space-y-2">
-				{#each topLeads as lead}
-					<div
-						class="flex flex-col gap-2 rounded-lg p-4 sm:flex-row sm:items-center sm:justify-between"
-						style="background: rgba(255,255,255,0.02); border: 1px solid {lead.priority === 'P1' ? 'rgba(57,255,20,0.15)' : 'var(--color-border)'}"
-					>
-						<div class="min-w-0 flex-1">
-							<div class="flex flex-wrap items-center gap-2">
-								<span class="text-sm font-semibold" style="color: var(--color-text-primary)">{lead.role}</span>
-								<PriorityBadge priority={lead.priority} />
-								{#if lead.confidence}
-									<span class="text-xs font-bold" style="color: {lead.confidence >= 65 ? '#39FF14' : lead.confidence >= 45 ? '#f59e0b' : '#0ea5e9'}">
-										{lead.confidence}%
-									</span>
-								{/if}
-							</div>
-							<div class="mt-1 flex flex-wrap items-center gap-3">
-								<span class="text-xs" style="color: var(--color-text-secondary)">{lead.company}</span>
-								<span class="text-xs font-medium" style="color: var(--color-neon)">
-									{lead.salary !== 'Not listed' ? lead.salary : 'Salary TBD'}
-								</span>
-								<span class="text-xs" style="color: var(--color-text-muted)">
-									{lead.remote ? '🌐 Remote' : lead.location}
-								</span>
-								<span class="rounded-full px-2 py-0.5 text-[10px]"
-									style="background: rgba(255,255,255,0.04); color: var(--color-text-muted)">
-									{lead.source}
-								</span>
-							</div>
-						</div>
-						{#if lead.url !== '#'}
-							<a
-								href={lead.url}
-								target="_blank"
-								rel="noopener noreferrer"
-								class="shrink-0 rounded-lg px-4 py-2 text-xs font-medium transition-all hover:opacity-80"
-								style="background: rgba(57,255,20,0.12); color: var(--color-neon); border: 1px solid rgba(57,255,20,0.25)"
-							>
-								Apply ↗
-							</a>
-						{/if}
-					</div>
-				{/each}
-			</div>
-		{/if}
-	</div>
-
-	<!-- Up Next + Recent Applications -->
+	<!-- Top Leads + Up Next — side by side -->
 	<div class="grid gap-6 lg:grid-cols-2">
-		<!-- Up Next — deploy-ready, not yet applied -->
-		{#if upNext.length > 0}
-			<div class="card p-6" style="border-color: rgba(57,255,20,0.15)">
-				<h2 class="mb-4 text-sm font-semibold uppercase tracking-widest" style="color: var(--color-neon)">
-					Up Next — Ready to Submit
+		<!-- Top Leads -->
+		<div class="card p-5">
+			<div class="mb-4 flex items-center justify-between">
+				<h2 class="text-sm font-semibold uppercase tracking-widest" style="color: var(--color-neon)">
+					Top Leads
 				</h2>
-				<div class="space-y-3">
-					{#each upNext as app}
-						<div class="flex items-center gap-3 rounded-lg p-3" style="background: rgba(57,255,20,0.03); border: 1px solid rgba(57,255,20,0.1)">
+				<a href="/searches" class="text-xs transition-colors hover:text-white" style="color: var(--color-text-muted)">
+					All →
+				</a>
+			</div>
+
+			{#if topLeads.length === 0}
+				<p class="py-6 text-center text-xs" style="color: var(--color-text-muted)">
+					No unapplied leads.
+				</p>
+			{:else}
+				<div class="space-y-2">
+					{#each topLeads.slice(0, 6) as lead}
+						<div
+							class="flex items-center gap-3 rounded-lg p-3"
+							style="background: rgba(255,255,255,0.02); border: 1px solid {lead.priority === 'P1' ? 'rgba(57,255,20,0.12)' : 'var(--color-border)'}"
+						>
 							<div class="min-w-0 flex-1">
-								<div class="flex items-center gap-2">
-									<span class="text-sm font-semibold" style="color: var(--color-text-primary)">{app.company}</span>
-									<DeployBadge status={app.deployStatus} />
+								<div class="flex flex-wrap items-center gap-1.5">
+									<span class="text-xs font-semibold" style="color: var(--color-text-primary)">{lead.role}</span>
+									<PriorityBadge priority={lead.priority} />
 								</div>
-								<p class="mt-0.5 text-xs" style="color: var(--color-text-secondary)">{app.role}</p>
-								<p class="mt-0.5 text-xs" style="color: var(--color-neon)">{app.salary}</p>
+								<div class="mt-1 flex flex-wrap items-center gap-2">
+									<span class="text-[10px]" style="color: var(--color-text-secondary)">{lead.company}</span>
+									<span class="text-[10px] font-medium" style="color: var(--color-neon)">
+										{lead.salary !== 'Not listed' ? lead.salary : 'TBD'}
+									</span>
+									{#if lead.remote}
+										<span class="text-[10px]" style="color: var(--color-text-muted)">🌐</span>
+									{/if}
+								</div>
 							</div>
-							{#if app.url && app.url !== '#'}
-								<a href={app.url} target="_blank" rel="noopener noreferrer"
-									class="shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium"
-									style="background: rgba(57,255,20,0.12); color: var(--color-neon); border: 1px solid rgba(57,255,20,0.25)">
+							{#if lead.url !== '#'}
+								<a href={lead.url} target="_blank" rel="noopener noreferrer"
+									class="shrink-0 rounded px-2.5 py-1 text-[10px] font-medium transition-all hover:opacity-80"
+									style="background: rgba(57,255,20,0.1); color: var(--color-neon); border: 1px solid rgba(57,255,20,0.2)">
 									Apply ↗
 								</a>
 							{/if}
 						</div>
 					{/each}
 				</div>
-			</div>
-		{/if}
+			{/if}
+		</div>
 
-		<!-- Recent Applications -->
-		{#if recentApps.length > 0}
-			<div class="card p-6">
-				<div class="mb-4 flex items-center justify-between">
-					<h2 class="text-sm font-semibold uppercase tracking-widest" style="color: var(--color-text-secondary)">
-						Recent Applications
-					</h2>
-					<a href="/applications" class="text-xs transition-colors hover:text-white" style="color: var(--color-text-muted)">
-						All applications →
-					</a>
-				</div>
-				<div class="space-y-3">
-					{#each recentApps as app}
-						<div class="flex items-center gap-3 rounded-lg p-3" style="background: rgba(255,255,255,0.02); border: 1px solid var(--color-border)">
+		<!-- Up Next — deploy-ready -->
+		<div class="card p-5" style="border-color: rgba(57,255,20,0.12)">
+			<div class="mb-4 flex items-center justify-between">
+				<h2 class="text-sm font-semibold uppercase tracking-widest" style="color: var(--color-neon)">
+					Up Next — Ready to Submit
+				</h2>
+				<span class="text-[10px]" style="color: var(--color-text-muted)">{upNext.length} ready</span>
+			</div>
+
+			{#if upNext.length === 0}
+				<p class="py-6 text-center text-xs" style="color: var(--color-text-muted)">
+					All packages submitted.
+				</p>
+			{:else}
+				<div class="space-y-2">
+					{#each upNext as app}
+						<div class="flex items-center gap-3 rounded-lg p-3" style="background: rgba(57,255,20,0.02); border: 1px solid rgba(57,255,20,0.08)">
 							<div class="min-w-0 flex-1">
-								<div class="flex items-center gap-2">
-									<span class="text-sm font-semibold" style="color: var(--color-text-primary)">{app.company}</span>
-									<StatusBadge status={app.status} />
+								<div class="flex items-center gap-1.5">
+									<span class="text-xs font-semibold" style="color: var(--color-text-primary)">{app.company}</span>
+									<DeployBadge status={app.deployStatus} />
 								</div>
-								<p class="mt-0.5 text-xs" style="color: var(--color-text-secondary)">{app.role}</p>
+								<p class="mt-0.5 text-[10px]" style="color: var(--color-text-secondary)">{app.role}</p>
+								<p class="mt-0.5 text-[10px]" style="color: var(--color-neon)">{app.salary}</p>
 							</div>
-							<span class="shrink-0 text-xs" style="color: var(--color-text-muted)">{app.dateApplied}</span>
+							{#if app.url && app.url !== '#'}
+								<a href={app.url} target="_blank" rel="noopener noreferrer"
+									class="shrink-0 rounded px-2.5 py-1 text-[10px] font-medium"
+									style="background: rgba(57,255,20,0.1); color: var(--color-neon); border: 1px solid rgba(57,255,20,0.2)">
+									Apply ↗
+								</a>
+							{/if}
 						</div>
 					{/each}
 				</div>
-			</div>
-		{/if}
+			{/if}
+		</div>
 	</div>
+
+	<!-- Recent Applications -->
+	{#if recentApps.length > 0}
+		<div class="card p-5">
+			<div class="mb-4 flex items-center justify-between">
+				<h2 class="text-sm font-semibold uppercase tracking-widest" style="color: var(--color-text-secondary)">
+					Recent Applications
+				</h2>
+				<a href="/applications" class="text-xs transition-colors hover:text-white" style="color: var(--color-text-muted)">
+					All →
+				</a>
+			</div>
+			<div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+				{#each recentApps as app}
+					<div class="flex items-center gap-3 rounded-lg p-3" style="background: rgba(255,255,255,0.02); border: 1px solid var(--color-border)">
+						<div class="min-w-0 flex-1">
+							<div class="flex items-center gap-1.5">
+								<span class="text-xs font-semibold" style="color: var(--color-text-primary)">{app.company}</span>
+								<StatusBadge status={app.status} />
+							</div>
+							<p class="mt-0.5 text-[10px]" style="color: var(--color-text-secondary)">{app.role}</p>
+						</div>
+						<span class="shrink-0 text-[10px]" style="color: var(--color-text-muted)">{app.dateApplied}</span>
+					</div>
+				{/each}
+			</div>
+		</div>
+	{/if}
 
 	<!-- Pipeline + Activity -->
 	<div class="grid gap-6 lg:grid-cols-2">
