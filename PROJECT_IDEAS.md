@@ -4,6 +4,31 @@
 
 ---
 
+## Known Defects / Technical Debt
+
+### Link Health Issues
+- **Indeed links** expire fast (redirect through tracking URLs). Frame Set link likely dead.
+- **ZipRecruiter tracking URLs** are session-based and expire. Phillies link likely dead.
+- **Netflix search URLs** were used instead of direct JD links for Ads Eng + Media Encoding (FIXED 2026-03-27).
+- **Google Careers** renders via JS — can't verify link status from CLI/scraper.
+- **Crunchyroll Greenhouse** was redirecting to main careers page last check.
+- **Need:** Link health checker that periodically tests URLs and flags expired listings.
+- **LOE:** 2-3 hrs for a basic HTTP status checker. Harder for JS-rendered sites.
+
+### Claude Extension Integration (idea)
+- Claude Code (CLI) can't render JS pages. Claude browser extension CAN.
+- If sessions could be shared or extension could feed page content to CLI, we'd solve Google Careers / Netflix Jobs scraping.
+- **Status:** Not currently possible — separate products. Monitor for future API.
+
+### News Widget
+- **Feature:** Auto-refreshing tech news + targeted company news on dashboard
+- **Approach:** HN Algolia API (free, CORS-friendly) + client-side polling every 2-4 hrs
+- **Catch:** Requires `adapter-node` for server-side caching, or client-only fetch for static build
+- **LOE:** 3-4 hrs for basic implementation
+- **The word:** "client-side polling" via `setInterval` with `$effect`
+
+---
+
 ## V2 — Claude Integration (Chat in App)
 
 ### Vision
