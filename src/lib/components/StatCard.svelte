@@ -4,18 +4,23 @@
 		value,
 		icon,
 		accent = false,
-		trend = null
+		trend = null,
+		href = null
 	}: {
 		label: string;
 		value: number | string;
 		icon: string;
 		accent?: boolean;
 		trend?: string | null;
+		href?: string | null;
 	} = $props();
 </script>
 
-<div class="card card-hover group relative overflow-hidden p-6">
-	<!-- Background glow for accent cards -->
+{#if href}
+<a {href} class="card card-hover group relative block overflow-hidden p-5 transition-all">
+{:else}
+<div class="card group relative overflow-hidden p-5">
+{/if}
 	{#if accent}
 		<div
 			class="pointer-events-none absolute inset-0 rounded-[12px] opacity-0 transition-opacity duration-300 group-hover:opacity-100"
@@ -25,19 +30,19 @@
 
 	<div class="flex items-start justify-between">
 		<div>
-			<p class="text-sm font-medium" style="color: var(--color-text-secondary)">{label}</p>
+			<p class="text-xs font-medium" style="color: var(--color-text-secondary)">{label}</p>
 			<p
-				class="mt-2 text-4xl font-bold tabular-nums tracking-tight"
+				class="mt-1 text-3xl font-bold tabular-nums tracking-tight"
 				style={accent ? 'color: var(--color-neon)' : 'color: var(--color-text-primary)'}
 			>
 				{value}
 			</p>
 			{#if trend}
-				<p class="mt-1 text-xs" style="color: var(--color-text-muted)">{trend}</p>
+				<p class="mt-1 text-[10px]" style="color: var(--color-text-muted)">{trend}</p>
 			{/if}
 		</div>
 		<div
-			class="flex h-10 w-10 items-center justify-center rounded-lg text-xl"
+			class="flex h-8 w-8 items-center justify-center rounded-lg text-base"
 			style={accent
 				? 'background: rgba(57,255,20,0.1); color: var(--color-neon)'
 				: 'background: rgba(255,255,255,0.05); color: var(--color-text-secondary)'}
@@ -45,4 +50,14 @@
 			{icon}
 		</div>
 	</div>
+
+	{#if href}
+		<span class="mt-2 block text-[10px] opacity-0 transition-opacity group-hover:opacity-100" style="color: var(--color-neon)">
+			View →
+		</span>
+	{/if}
+{#if href}
+</a>
+{:else}
 </div>
+{/if}
