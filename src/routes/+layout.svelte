@@ -23,12 +23,13 @@
 
 	const navItems = [
 		{ href: '/', label: 'Dashboard', icon: '◈' },
+		{ href: '/pipeline', label: 'Pipeline', icon: '⚡' },
 		{ href: '/searches', label: 'Searches', icon: '⌕' },
 		{ href: '/targets', label: 'Targets', icon: '◎' },
 		{ href: '/applications', label: 'Applications', icon: '▣' },
 		{ href: '/companies', label: 'Companies', icon: '⬡' },
 		{ href: '/analytics', label: 'Analytics', icon: '◆' },
-		{ href: '/status', label: 'Status', icon: '⚡' },
+		{ href: '/prep', label: 'Prep', icon: '◧' },
 		{ href: '/profile', label: 'Profile', icon: '◉' }
 	];
 
