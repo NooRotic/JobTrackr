@@ -16,6 +16,32 @@ export type Priority = 'P1' | 'P2' | 'P3' | 'SKIP';
 /** Readiness state for an application */
 export type DeployStatus = 'deploy-ready' | 'research' | 'none';
 
+/** Where the job listing was found */
+export type JobSource =
+	| 'indeed'
+	| 'google-careers'
+	| 'netflix-jobs'
+	| 'greenhouse'
+	| 'workable'
+	| 'ashby'
+	| 'dice'
+	| 'simplyhired'
+	| 'builtin'
+	| 'weworkremotely'
+	| 'remoteok'
+	| 'remote100k'
+	| 'linkedin'
+	| 'ziprecruiter'
+	| 'glassdoor'
+	| 'obsidi'
+	| 'dayforce'
+	| 'disney-careers'
+	| 'amazon-jobs'
+	| 'tiktok-careers'
+	| 'company-site'
+	| 'referral'
+	| 'other';
+
 export interface Application {
 	id: string;
 	company: string;
@@ -31,6 +57,8 @@ export interface Application {
 	jobId?: string;
 	deployStatus?: DeployStatus;
 	deployPath?: string;
+	/** Where the listing was found */
+	source?: JobSource;
 }
 
 export interface SearchResult {
@@ -128,4 +156,60 @@ export interface CompanyTarget {
 	fitAngle: string;
 	jobs: SearchResult[];
 	dateResearched: string;
+}
+
+// === Interview Prep Types ===
+
+export type InterviewPlatform = 'Teams' | 'Zoom' | 'Google Meet' | 'Phone' | 'In-person' | 'Other';
+export type InterviewStatus = 'scheduled' | 'completed' | 'cancelled' | 'rescheduled';
+export type InterviewRound = 'recruiter-screen' | 'hiring-manager' | 'technical' | 'system-design' | 'behavioral' | 'panel' | 'final' | 'offer-call';
+
+export interface Interview {
+	id: string;
+	company: string;
+	role: string;
+	date: string;
+	time: string;
+	timezone: string;
+	platform: InterviewPlatform;
+	round: InterviewRound;
+	interviewers: string[];
+	meetingUrl?: string;
+	status: InterviewStatus;
+	prepNotes: string;
+	postNotes?: string;
+	selfRating?: number;
+	followUpSent?: boolean;
+}
+
+export type StoryCategory =
+	| 'ad-tech'
+	| 'debugging'
+	| 'leadership'
+	| 'architecture'
+	| 'impact'
+	| 'collaboration'
+	| 'streaming'
+	| 'chromecast';
+
+export interface InterviewStory {
+	id: string;
+	title: string;
+	category: StoryCategory;
+	content: string;
+	landedWellAt: string[];
+	addresses: string[];
+}
+
+export interface StudySection {
+	id: string;
+	title: string;
+	content: string;
+	tags: string[];
+}
+
+export interface PrepData {
+	interviews: Interview[];
+	stories: InterviewStory[];
+	studySections: StudySection[];
 }
