@@ -10,6 +10,18 @@ No magic. No "AI finds your dream job" nonsense. You do the searching, you make 
 ![Bun](https://img.shields.io/badge/Bun-1.x-fbf0df?style=flat-square&logo=bun)
 ![License: MIT](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 
+### Dashboard — stats, top leads, pipeline at a glance
+
+![Dashboard](screenshots/dashboard.png)
+
+### Searches — priority-tiered job listings (P1/P2/P3)
+
+![Searches](screenshots/searches.png)
+
+### Applications — Kanban board with status tracking
+
+![Applications](screenshots/applications.png)
+
 ---
 
 ## Who This Is For
@@ -32,8 +44,30 @@ If you want an app that auto-applies to 500 jobs and writes your cover letter, t
 - **Confidence Scoring** — Auto-calculated 0-100% match based on title keywords, seniority, role type, salary range, and remote availability. Customize the weights in `targets.ts` to match your own profile.
 - **Title Analytics** — Which job title searches actually produce relevant results? Track verdicts (Works / Sometimes / Never) so you stop repeating dead-end queries.
 - **Inline JDs** — Job descriptions render inside the app when available. No tab-switching to Indeed.
-- **Application Pipeline** — Kanban board and table view: Saved → Applied → Screening → Interview → Offer → Closed.
+- **Application Pipeline** — Kanban board and table view: Saved → Applied → Screening → Interview → Offer → Accepted / Rejected.
+- **Deploy-Ready Tracking** — See which applications have cover letter + portfolio packages built and ready to submit.
+- **Demo/Live Toggle** — Switch between demo data (for screenshots) and your real data with one click. Persists across reloads via localStorage.
 - **Indeed Saved Jobs Import** — If you can grab the JSON from Indeed's saved jobs API, the data maps directly into the search results format with metadata like `normalizedJobTitle`, `easyApply`, and `expired` status.
+
+### More Screenshots
+
+<details>
+<summary>Company Targets — confidence scoring + company intel</summary>
+
+![Targets](screenshots/targets.png)
+</details>
+
+<details>
+<summary>Title Analytics — track which searches work vs waste time</summary>
+
+![Analytics](screenshots/analytics.png)
+</details>
+
+<details>
+<summary>Profile — strengths, targets, talking points</summary>
+
+![Profile](screenshots/profile.png)
+</details>
 
 ### Priority Tiers
 
@@ -84,13 +118,14 @@ All data lives in `src/lib/data/`. Plain TypeScript files with typed interfaces.
 | `applications.ts` | Application pipeline entries |
 | `companies.ts` | Company research cards |
 | `activity.ts` | Activity feed |
+| `profile.ts` | Career profile data |
 | `types.ts` | All TypeScript interfaces — extend as needed |
 
 Replace the example data with your own. That's it.
 
 ### Keeping Your Data Private
 
-Your real job search data should not live in a public repo. The `.gitignore` already excludes `src/lib/data/personal/`. Keep your real data files there and swap the imports in `index.ts` to point at them locally.
+Your real job search data should not live in a public repo. The `.gitignore` already excludes `src/lib/data/personal/`. Keep your real data files there — the app loads personal data by default and falls back to demo data. Toggle between them with the sidebar button or `?demo=true` URL param. Your preference persists in localStorage across reloads.
 
 ---
 
@@ -125,15 +160,15 @@ This is a power tool, not an autopilot.
 ```
 src/
   lib/
-    components/       # StatusBadge, FitBadge, PriorityBadge, StatCard
+    components/       # StatusBadge, FitBadge, PriorityBadge, DeployBadge, StatCard
     data/             # All typed data files (example data ships with repo)
       personal/       # Your real data (gitignored)
   routes/
-    +layout.svelte    # Root layout with sidebar nav
-    +page.svelte      # Dashboard home
+    +layout.svelte    # Root layout with sidebar nav + demo/live toggle
+    +page.svelte      # Dashboard home (stats, leads, pipeline, activity)
     searches/         # Priority-tiered job board (P1/P2/P3)
     targets/          # Company-targeted search with confidence scoring
-    applications/     # Kanban board + table view
+    applications/     # Kanban board + table view with add/edit
     companies/        # Company research card grid
     analytics/        # Job title effectiveness tracking
     profile/          # Career profile with talking points
@@ -148,7 +183,7 @@ bun run build
 bun run preview
 ```
 
-Deploy to Vercel, Cloudflare Pages, or any Node host with the appropriate SvelteKit adapter.
+Deploy to Vercel, Cloudflare Pages, GitHub Pages, or any static host with the appropriate SvelteKit adapter.
 
 ---
 

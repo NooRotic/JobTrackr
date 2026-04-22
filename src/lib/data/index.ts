@@ -23,6 +23,7 @@ import {
 } from './targets';
 import { titleAnalytics as demoAnalytics } from './titleAnalytics';
 import { profile as demoProfile } from './profile';
+import { prepData as demoPrep } from './prep';
 
 export { calculateConfidence, priorityFromConfidence };
 
@@ -46,6 +47,7 @@ let companyTargets = demoTargets;
 let jobTitleCategories = demoCats;
 let titleAnalytics = demoAnalytics;
 let profile = demoProfile;
+let prepData = demoPrep;
 
 if (!isDemoMode()) {
 	try {
@@ -77,6 +79,10 @@ if (!isDemoMode()) {
 		const p = await import('./personal/profile');
 		profile = p.profile;
 	} catch {}
+	try {
+		const p = await import('./personal/prep');
+		prepData = p.prepData;
+	} catch {}
 }
 
 export {
@@ -87,7 +93,8 @@ export {
 	companyTargets,
 	jobTitleCategories,
 	titleAnalytics,
-	profile
+	profile,
+	prepData
 };
 
 export type {
@@ -102,5 +109,13 @@ export type {
 	FitRating,
 	Priority,
 	JobTitleAnalytics,
-	TitleVerdict
+	TitleVerdict,
+	InterviewPlatform,
+	InterviewStatus,
+	InterviewRound,
+	Interview,
+	StoryCategory,
+	InterviewStory,
+	StudySection,
+	PrepData
 } from './types';
