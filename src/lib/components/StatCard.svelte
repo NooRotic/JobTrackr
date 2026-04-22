@@ -16,14 +16,10 @@
 	} = $props();
 </script>
 
-{#if href}
-<a {href} class="card card-hover group relative block overflow-hidden p-5 transition-all">
-{:else}
-<div class="card group relative overflow-hidden p-5">
-{/if}
+{#snippet cardContent()}
 	{#if accent}
 		<div
-			class="pointer-events-none absolute inset-0 rounded-[12px] opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+			class="pointer-events-none absolute inset-0 rounded-xl opacity-0 transition-opacity duration-300 group-hover:opacity-100"
 			style="background: radial-gradient(circle at 50% 0%, rgba(57,255,20,0.06) 0%, transparent 70%)"
 		></div>
 	{/if}
@@ -56,8 +52,14 @@
 			View →
 		</span>
 	{/if}
+{/snippet}
+
 {#if href}
-</a>
+	<a {href} class="card card-hover group relative block overflow-hidden p-5 transition-all">
+		{@render cardContent()}
+	</a>
 {:else}
-</div>
+	<div class="card group relative overflow-hidden p-5">
+		{@render cardContent()}
+	</div>
 {/if}
