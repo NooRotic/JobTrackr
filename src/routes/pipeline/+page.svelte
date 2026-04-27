@@ -2,10 +2,27 @@
 	import { applications } from '$lib/data';
 	import StatusBadge from '$lib/components/StatusBadge.svelte';
 	import DeployBadge from '$lib/components/DeployBadge.svelte';
+	import LegitimacyBadge from '$lib/components/LegitimacyBadge.svelte';
+	import { assessLegitimacy, type LegitimacyTier } from '$lib/data/legitimacy';
+	import { loadLinkHealth, getLinkStatus, type LinkHealthData } from '$lib/data/linkHealth';
+
+	let linkHealth = $state<LinkHealthData | null>(null);
+	loadLinkHealth().then((d) => (linkHealth = d));
 
 	const applied = applications.filter((a) => a.status === 'applied');
 	const deployReady = applications.filter((a) => a.status === 'saved' && a.deployStatus === 'deploy-ready');
 	const research = applications.filter((a) => a.status === 'saved' && a.deployStatus === 'research');
+
+	// Legitimacy summary for applied apps
+	const legitimacySummary = $derived(() => {
+		const counts: Record<LegitimacyTier, number> = { high: 0, caution: 0, suspicious: 0, ghost: 0 };
+		for (const app of applied) {
+			const ls = linkHealth ? getLinkStatus(app.id, linkHealth).status : undefined;
+			const result = assessLegitimacy(app, ls);
+			counts[result.tier]++;
+		}
+		return counts;
+	});
 </script>
 
 <svelte:head>
@@ -20,6 +37,14 @@
 		<p class="mt-1 text-sm" style="color: var(--color-text-secondary)">
 			{applied.length} applied · {deployReady.length} ready to submit · {research.length} research
 		</p>
+		{#if linkHealth}
+			{@const summary = legitimacySummary()}
+			{#if summary.suspicious > 0 || summary.ghost > 0}
+				<p class="mt-1 text-xs" style="color: #ef4444">
+					{summary.suspicious + summary.ghost} application{summary.suspicious + summary.ghost > 1 ? 's' : ''} flagged as suspicious/ghost
+				</p>
+			{/if}
+		{/if}
 	</div>
 
 	<!-- Applied -->
@@ -37,6 +62,7 @@
 						<th class="px-3 py-2 text-center text-xs font-semibold uppercase tracking-wider" style="color: var(--color-text-muted)">Remote</th>
 						<th class="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wider" style="color: var(--color-text-muted)">Date</th>
 						<th class="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wider" style="color: var(--color-text-muted)">Link</th>
+						<th class="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wider" style="color: var(--color-text-muted)">Legitimacy</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -52,6 +78,13 @@
 							<td class="px-3 py-2.5">
 								{#if app.url && app.url !== '#'}
 									<a href={app.url} target="_blank" rel="noopener noreferrer" class="text-xs" style="color: var(--color-neon)">View ↗</a>
+								{/if}
+							</td>
+							<td class="px-3 py-2.5">
+								{#if true}
+									{@const ls = linkHealth ? getLinkStatus(app.id, linkHealth).status : undefined}
+									{@const legit = assessLegitimacy(app, ls)}
+									<LegitimacyBadge tier={legit.tier} score={legit.score} signals={legit.signals} />
 								{/if}
 							</td>
 						</tr>

@@ -24,8 +24,28 @@ import {
 import { titleAnalytics as demoAnalytics } from './titleAnalytics';
 import { profile as demoProfile } from './profile';
 import { prepData as demoPrep } from './prep';
+import { research as demoResearch } from './research';
 
 export { calculateConfidence, priorityFromConfidence };
+export {
+	STATUS_CONFIG,
+	STATUS_MAP,
+	STATUS_COLORS,
+	STATUS_LABELS,
+	ALL_STATUSES,
+	PIPELINE_STATUSES,
+	canTransition
+} from './states';
+export type { StatusConfig } from './states';
+export {
+	SCORE_WEIGHTS,
+	SCORE_LABELS,
+	SCORE_COLORS,
+	SCORE_DIMENSIONS,
+	calculateWeightedScore,
+	scoreLabel,
+	scoreColor
+} from './scoring';
 
 // Check demo mode: URL param overrides localStorage, localStorage persists across reloads
 function isDemoMode(): boolean {
@@ -48,6 +68,7 @@ let jobTitleCategories = demoCats;
 let titleAnalytics = demoAnalytics;
 let profile = demoProfile;
 let prepData = demoPrep;
+let research = demoResearch;
 
 if (!isDemoMode()) {
 	try {
@@ -83,6 +104,10 @@ if (!isDemoMode()) {
 		const p = await import('./personal/prep');
 		prepData = p.prepData;
 	} catch {}
+	try {
+		const p = await import('./personal/research');
+		research = p.research;
+	} catch {}
 }
 
 export {
@@ -94,7 +119,8 @@ export {
 	jobTitleCategories,
 	titleAnalytics,
 	profile,
-	prepData
+	prepData,
+	research
 };
 
 export type {
@@ -117,5 +143,8 @@ export type {
 	StoryCategory,
 	InterviewStory,
 	StudySection,
-	PrepData
+	PrepData,
+	ResearchEntry,
+	ResearchCategory,
+	ScoreDimensions
 } from './types';

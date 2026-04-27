@@ -5,6 +5,13 @@
 	import DeployBadge from '$lib/components/DeployBadge.svelte';
 	import StatCard from '$lib/components/StatCard.svelte';
 	import type { ApplicationStatus, SearchResult, Priority } from '$lib/data/types';
+	import { PIPELINE_STATUSES, STATUS_COLORS } from '$lib/data/states';
+	import { scoreLabel } from '$lib/data/scoring';
+	import { loadLinkHealth, type LinkHealthData } from '$lib/data/linkHealth';
+
+	// Link health (loaded async from generated JSON)
+	let linkHealth = $state<LinkHealthData | null>(null);
+	loadLinkHealth().then((d) => (linkHealth = d));
 
 	// Computed stats
 	const totalApplications = applications.filter((a) => a.status !== 'saved' && a.status !== 'rejected' && a.status !== 'accepted').length;
@@ -13,6 +20,12 @@
 	const offers = applications.filter((a) => a.status === 'offer' || a.status === 'accepted').length;
 	const companiesTargeted = companyTargets.length;
 	const totalSearchResults = searches.reduce((sum, s) => sum + s.results.length, 0);
+
+	// Average score across scored applications
+	const scoredApps = applications.filter((a) => a.score != null);
+	const avgScore = scoredApps.length > 0
+		? Math.round((scoredApps.reduce((sum, a) => sum + (a.score ?? 0), 0) / scoredApps.length) * 10) / 10
+		: null;
 
 	// Recent submitted applications (not saved, most recent first)
 	const recentApps = applications
@@ -25,31 +38,13 @@
 		.slice(0, 4);
 
 	// Pipeline stages
-	const pipeline: { status: ApplicationStatus; label: string }[] = [
-		{ status: 'saved', label: 'Saved' },
-		{ status: 'applied', label: 'Applied' },
-		{ status: 'screening', label: 'Screening' },
-		{ status: 'interview', label: 'Interview' },
-		{ status: 'offer', label: 'Offer' }
-	];
-
-	const pipelineCounts = pipeline.map(({ status, label }) => ({
+	const pipelineCounts = PIPELINE_STATUSES.map(({ status, label }) => ({
 		status,
 		label,
 		count: applications.filter((a) => a.status === status).length
 	}));
 
 	const maxPipelineCount = Math.max(...pipelineCounts.map((p) => p.count), 1);
-
-	const statusColors: Record<ApplicationStatus, string> = {
-		saved: '#6366f1',
-		applied: '#3b82f6',
-		screening: '#f59e0b',
-		interview: '#8b5cf6',
-		offer: '#10b981',
-		accepted: '#39ff14',
-		rejected: '#ef4444'
-	};
 
 	// Get applied job IDs and URLs to filter out already-applied leads
 	const appliedJobIds = new Set(applications.map((a) => a.jobId).filter(Boolean));
@@ -176,6 +171,17 @@
 		<StatCard label="Offers" value={offers} icon="✓" href="/applications" />
 		<StatCard label="Searches" value={activeSearches} icon="⌕" trend="{totalSearchResults} results" href="/searches" />
 		<StatCard label="Targets" value={companiesTargeted} icon="◎" href="/targets" />
+		{#if avgScore}
+			<StatCard label="Avg Score" value="{avgScore}/5" icon="◇" trend="{scoreLabel(avgScore)} · {scoredApps.length} scored" href="/applications" />
+		{/if}
+		{#if linkHealth}
+			<StatCard
+				label="Link Health"
+				value="{linkHealth.summary.active} live"
+				icon="♻"
+				trend="{linkHealth.summary.expired} expired · {linkHealth.summary.unknown} unknown"
+			/>
+		{/if}
 	</div>
 
 	<!-- Top Leads + Up Next — side by side -->
@@ -374,7 +380,7 @@
 						<div class="relative w-full overflow-hidden rounded-t-sm" style="height: 60px; background: rgba(255,255,255,0.04)">
 							<div
 								class="absolute bottom-0 w-full rounded-t-sm transition-all duration-700 ease-out"
-								style="height: {(stage.count / maxPipelineCount) * 100}%; background: {statusColors[stage.status]}; opacity: 0.85"
+								style="height: {(stage.count / maxPipelineCount) * 100}%; background: {STATUS_COLORS[stage.status]}; opacity: 0.85"
 							></div>
 						</div>
 						<span class="text-center text-xs font-medium" style="color: var(--color-text-secondary)">

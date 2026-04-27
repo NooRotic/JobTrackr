@@ -1,7 +1,17 @@
 <script lang="ts">
 	import { applications as initialApps } from '$lib/data';
 	import StatusBadge from '$lib/components/StatusBadge.svelte';
+	import LinkHealthBadge from '$lib/components/LinkHealthBadge.svelte';
+	import ScoreBadge from '$lib/components/ScoreBadge.svelte';
+	import ScoreBreakdown from '$lib/components/ScoreBreakdown.svelte';
+	import LegitimacyBadge from '$lib/components/LegitimacyBadge.svelte';
+	import { assessLegitimacy } from '$lib/data/legitimacy';
 	import type { Application, ApplicationStatus } from '$lib/data/types';
+	import { STATUS_CONFIG, ALL_STATUSES } from '$lib/data/states';
+	import { loadLinkHealth, getLinkStatus, type LinkHealthData, type LinkStatus } from '$lib/data/linkHealth';
+
+	let linkHealth = $state<LinkHealthData | null>(null);
+	loadLinkHealth().then((d) => (linkHealth = d));
 
 	type ViewMode = 'kanban' | 'table';
 	let viewMode = $state<ViewMode>('kanban');
@@ -21,17 +31,7 @@
 	let newNotes = $state('');
 	let newSource = $state<'indeed' | 'linkedin' | 'company-site' | 'other'>('company-site');
 
-	const columns: { status: ApplicationStatus; label: string; color: string }[] = [
-		{ status: 'saved', label: 'Saved', color: '#6366f1' },
-		{ status: 'applied', label: 'Applied', color: '#3b82f6' },
-		{ status: 'screening', label: 'Screening', color: '#f59e0b' },
-		{ status: 'interview', label: 'Interview', color: '#8b5cf6' },
-		{ status: 'offer', label: 'Offer', color: '#10b981' },
-		{ status: 'accepted', label: 'Accepted', color: '#39ff14' },
-		{ status: 'rejected', label: 'Rejected', color: '#ef4444' }
-	];
-
-	const allStatuses: ApplicationStatus[] = ['saved', 'applied', 'screening', 'interview', 'offer', 'accepted', 'rejected'];
+	const columns = STATUS_CONFIG.map(({ status, label, color }) => ({ status, label, color }));
 
 	const grouped = $derived(
 		Object.fromEntries(
@@ -260,10 +260,11 @@
 										{/if}
 									</div>
 
-									<div class="mt-3 flex flex-wrap gap-2">
+									<div class="mt-3 flex flex-wrap items-center gap-2">
 										<span class="text-xs font-medium" style="color: var(--color-neon)">
 											{app.salary !== 'Not listed' ? app.salary.split(' – ')[0] + '+' : 'Salary TBD'}
 										</span>
+										<ScoreBadge score={app.score} />
 									</div>
 
 									{#if app.dateApplied}
@@ -275,11 +276,38 @@
 											Saved {app.dateSaved}
 										</p>
 									{/if}
+
+									{#if linkHealth}
+										{@const lh = getLinkStatus(app.id, linkHealth)}
+										{#if lh.status !== 'unchecked' && lh.status !== 'active'}
+											<div class="mt-2">
+												<LinkHealthBadge status={lh.status} reason={lh.reason} />
+											</div>
+										{/if}
+									{/if}
 								</button>
 
 								<!-- Expanded details -->
 								{#if selectedApp?.id === app.id}
 									<div class="mt-3 space-y-3 border-t pt-3" style="border-color: var(--color-border)">
+										{#if app.scoreDimensions}
+											<div>
+												<p class="mb-2 text-xs font-medium" style="color: var(--color-text-muted)">Fit Breakdown</p>
+												<ScoreBreakdown dimensions={app.scoreDimensions} />
+											</div>
+										{/if}
+
+										{#if true}
+											{@const legit = assessLegitimacy(
+												app,
+												linkHealth ? getLinkStatus(app.id, linkHealth).status : undefined
+											)}
+											<div>
+												<p class="mb-2 text-xs font-medium" style="color: var(--color-text-muted)">Legitimacy</p>
+												<LegitimacyBadge tier={legit.tier} score={legit.score} signals={legit.signals} />
+											</div>
+										{/if}
+
 										{#if app.notes}
 											<p class="text-xs leading-relaxed" style="color: var(--color-text-secondary)">
 												{app.notes}
@@ -290,7 +318,7 @@
 										<div>
 											<p class="mb-1.5 text-xs font-medium" style="color: var(--color-text-muted)">Move to:</p>
 											<div class="flex flex-wrap gap-1.5">
-												{#each allStatuses.filter((s) => s !== app.status) as status}
+												{#each ALL_STATUSES.filter((s) => s !== app.status) as status}
 													<button
 														onclick={() => updateStatus(app.id, status)}
 														class="rounded px-2 py-1 text-xs font-medium transition-all hover:opacity-80"
@@ -387,7 +415,7 @@
 											{/if}
 											<div class="flex flex-wrap items-center gap-2">
 												<span class="text-xs font-medium" style="color: var(--color-text-muted)">Move to:</span>
-												{#each allStatuses.filter((s) => s !== app.status) as status}
+												{#each ALL_STATUSES.filter((s) => s !== app.status) as status}
 													<button
 														onclick={(e) => { e.stopPropagation(); updateStatus(app.id, status); }}
 														class="rounded px-2 py-1 text-xs font-medium transition-all hover:opacity-80"

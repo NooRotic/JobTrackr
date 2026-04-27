@@ -42,6 +42,22 @@ export type JobSource =
 	| 'referral'
 	| 'other';
 
+/** Per-dimension scores for a job evaluation */
+export interface ScoreDimensions {
+	/** How well the tech stack matches (0-5) */
+	stackMatch: number;
+	/** Domain relevance — video/streaming/frontend (0-5) */
+	domainFit: number;
+	/** Compensation relative to target (0-5) */
+	compensation: number;
+	/** Remote/location fit (0-5) */
+	locationFit: number;
+	/** Seniority level alignment (0-5) */
+	seniorityMatch: number;
+	/** Company reputation and tier (0-5) */
+	companyTier: number;
+}
+
 export interface Application {
 	id: string;
 	company: string;
@@ -59,6 +75,10 @@ export interface Application {
 	deployPath?: string;
 	/** Where the listing was found */
 	source?: JobSource;
+	/** Overall score 1-5 (weighted average of dimensions) */
+	score?: number;
+	/** Per-dimension breakdown */
+	scoreDimensions?: ScoreDimensions;
 }
 
 export interface SearchResult {
@@ -212,4 +232,36 @@ export interface PrepData {
 	interviews: Interview[];
 	stories: InterviewStory[];
 	studySections: StudySection[];
+}
+
+// === Research Types ===
+
+/** Category of research activity */
+export type ResearchCategory =
+	| 'wide-sweep'
+	| 'company-deep-dive'
+	| 'market-research'
+	| 'job-search'
+	| 'contract-sweep'
+	| 'submissions';
+
+export interface ResearchEntry {
+	id: string;
+	title: string;
+	date: string;
+	category: ResearchCategory;
+	/** Which session produced this research (e.g. "Session 19") */
+	session?: string;
+	/** Sources searched (e.g. "Greenhouse, Indeed, Dice") */
+	sources: string[];
+	/** Companies covered in this research */
+	companies: string[];
+	/** Key findings — top-line summary bullets */
+	highlights: string[];
+	/** How many leads were found */
+	leadsFound: number;
+	/** Tier A leads count */
+	tierACount: number;
+	/** Link to the original markdown file in searches/ or companies/ */
+	sourceFile?: string;
 }
