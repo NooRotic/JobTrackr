@@ -15,7 +15,9 @@ export const applications: Application[] = [
 		dateSaved: '2026-03-21',
 		url: '#',
 		notes: 'Strong match — React + TypeScript platform team. Pull full JD before applying.',
-		jobId: 'r-001'
+		jobId: 'r-001',
+		score: 4.2,
+		scoreDimensions: { stackMatch: 5, domainFit: 3, compensation: 4, locationFit: 5, seniorityMatch: 5, companyTier: 4 }
 	},
 	{
 		id: 'app-002',
@@ -29,7 +31,9 @@ export const applications: Application[] = [
 		dateSaved: '2026-03-17',
 		url: '#',
 		notes: 'Applied via company portal. Tailored cover letter sent. Mentioned streaming data UI experience.',
-		jobId: 'r-002'
+		jobId: 'r-002',
+		score: 4.0,
+		scoreDimensions: { stackMatch: 5, domainFit: 3, compensation: 5, locationFit: 5, seniorityMatch: 4, companyTier: 3 }
 	},
 	{
 		id: 'app-003',
@@ -43,7 +47,9 @@ export const applications: Application[] = [
 		dateSaved: '2026-03-16',
 		url: '#',
 		notes: 'Applied via Easy Apply. Referenced video streaming background in cover letter. Good fit on paper.',
-		jobId: 'saved-001'
+		jobId: 'saved-001',
+		score: 4.6,
+		scoreDimensions: { stackMatch: 4, domainFit: 5, compensation: 5, locationFit: 5, seniorityMatch: 5, companyTier: 4 }
 	},
 	{
 		id: 'app-004',
@@ -57,7 +63,9 @@ export const applications: Application[] = [
 		dateSaved: '2026-03-13',
 		url: '#',
 		notes: 'Recruiter reached out 3/20. 30-min phone screen scheduled for 3/24. Research team culture before call.',
-		jobId: 'r-007'
+		jobId: 'r-007',
+		score: 3.6,
+		scoreDimensions: { stackMatch: 4, domainFit: 2, compensation: 4, locationFit: 5, seniorityMatch: 4, companyTier: 3 }
 	},
 	{
 		id: 'app-005',
@@ -71,7 +79,9 @@ export const applications: Application[] = [
 		dateSaved: '2026-03-11',
 		url: '#',
 		notes: 'Passed phone screen 3/18. Technical round (take-home) submitted 3/21. Awaiting decision.',
-		jobId: 'r-013'
+		jobId: 'r-013',
+		score: 3.9,
+		scoreDimensions: { stackMatch: 5, domainFit: 3, compensation: 3, locationFit: 5, seniorityMatch: 5, companyTier: 3 }
 	},
 	{
 		id: 'app-006',
@@ -85,7 +95,9 @@ export const applications: Application[] = [
 		dateSaved: '2026-03-09',
 		url: '#',
 		notes: 'Final round scheduled for 2026-03-25 at 2pm ET. Panel interview: eng manager + 2 senior engineers + product. Prep system design + behavioral.',
-		jobId: 'r-004'
+		jobId: 'r-004',
+		score: 3.4,
+		scoreDimensions: { stackMatch: 4, domainFit: 2, compensation: 3, locationFit: 5, seniorityMatch: 4, companyTier: 4 }
 	},
 	{
 		id: 'app-007',
@@ -99,7 +111,9 @@ export const applications: Application[] = [
 		dateSaved: '2026-03-04',
 		url: '#',
 		notes: 'Offer received 3/20: $192k base + $40k RSU/yr + 15% bonus. Decision deadline 3/28. Comparing against pending CloudForge outcome.',
-		jobId: 'r-008'
+		jobId: 'r-008',
+		score: 3.2,
+		scoreDimensions: { stackMatch: 3, domainFit: 2, compensation: 4, locationFit: 5, seniorityMatch: 3, companyTier: 4 }
 	},
 	{
 		id: 'app-008',
@@ -113,6 +127,8 @@ export const applications: Application[] = [
 		dateSaved: '2026-02-28',
 		url: '#',
 		notes: 'Rejected after technical round 3/15. Feedback: "Strong fundamentals but wanted more backend depth for their current team needs." Consider revisiting if they post a more frontend-focused role.',
-		jobId: 'r-003'
+		jobId: 'r-003',
+		score: 2.3,
+		scoreDimensions: { stackMatch: 3, domainFit: 1, compensation: 2, locationFit: 5, seniorityMatch: 2, companyTier: 3 }
 	}
 ];

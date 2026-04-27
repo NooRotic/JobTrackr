@@ -25,5 +25,8 @@ vite.config.ts.timestamp-*
 # Personal job search data — never commit
 src/lib/data/personal/
 
+# Generated data (link health checks, etc.)
+src/lib/data/generated/
+
 # Social media copy (personal, not for repo)
 docs/social_media.md

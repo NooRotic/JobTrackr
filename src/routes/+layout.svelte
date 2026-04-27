@@ -28,6 +28,7 @@
 		{ href: '/targets', label: 'Targets', icon: '◎' },
 		{ href: '/applications', label: 'Applications', icon: '▣' },
 		{ href: '/companies', label: 'Companies', icon: '⬡' },
+		{ href: '/research', label: 'Research', icon: '⊞' },
 		{ href: '/analytics', label: 'Analytics', icon: '◆' },
 		{ href: '/prep', label: 'Prep', icon: '◧' },
 		{ href: '/profile', label: 'Profile', icon: '◉' }
