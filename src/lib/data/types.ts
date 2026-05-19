@@ -75,6 +75,8 @@ export interface Application {
 	deployPath?: string;
 	/** Where the listing was found */
 	source?: JobSource;
+	/** Recruiter who sourced this application, if any */
+	recruiterId?: string;
 	/** Overall score 1-5 (weighted average of dimensions) */
 	score?: number;
 	/** Per-dimension breakdown */
