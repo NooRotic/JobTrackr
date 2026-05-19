@@ -63,7 +63,10 @@
 		class:translate-x-0={sidebarOpen}
 	>
 		<!-- Logo / Brand -->
-		<div class="flex items-center gap-3 px-6 py-6" style="border-bottom: 1px solid var(--color-border)">
+		<div
+			class="flex items-center gap-3 px-6 py-6"
+			style="border-bottom: 1px solid var(--color-border)"
+		>
 			<div
 				class="flex h-8 w-8 items-center justify-center rounded-lg text-sm font-bold"
 				style="background: var(--color-neon); color: #0a0a0f"
@@ -100,9 +103,7 @@
 					{item.label}
 
 					{#if active}
-						<span
-							class="ml-auto h-1.5 w-1.5 rounded-full"
-							style="background: var(--color-neon)"
+						<span class="ml-auto h-1.5 w-1.5 rounded-full" style="background: var(--color-neon)"
 						></span>
 					{/if}
 				</a>
@@ -119,15 +120,16 @@
 					? 'background: rgba(139,92,246,0.1); color: #a78bfa; border: 1px solid rgba(139,92,246,0.25)'
 					: 'background: rgba(57,255,20,0.08); color: var(--color-neon); border: 1px solid rgba(57,255,20,0.2)'}
 			>
-				<span class="h-2 w-2 rounded-full" style={isDemo ? 'background: #a78bfa' : 'background: var(--color-neon)'}></span>
+				<span
+					class="h-2 w-2 rounded-full"
+					style={isDemo ? 'background: #a78bfa' : 'background: var(--color-neon)'}
+				></span>
 				{isDemo ? 'Demo Data' : 'Live Data'}
 				<span class="ml-auto text-[10px] opacity-60">click to swap</span>
 			</button>
 
 			<div>
-				<p class="text-xs" style="color: var(--color-text-muted)">
-					Open source — MIT License
-				</p>
+				<p class="text-xs" style="color: var(--color-text-muted)">Open source — MIT License</p>
 				<a
 					href="https://github.com/NooRotic/JobTrackr"
 					target="_blank"
