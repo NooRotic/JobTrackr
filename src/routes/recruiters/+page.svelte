@@ -1,10 +1,7 @@
 <script lang="ts">
 	import { recruiters, applications } from '$lib/data';
 	import type { Recruiter, RecruiterStatus, SignalTier } from '$lib/data/types';
-	import {
-		RECRUITER_STATUS_CONFIG,
-		ALL_RECRUITER_STATUSES
-	} from '$lib/data/recruiterStates';
+	import { RECRUITER_STATUS_CONFIG, ALL_RECRUITER_STATUSES } from '$lib/data/recruiterStates';
 	import RecruiterStatusBadge from '$lib/components/RecruiterStatusBadge.svelte';
 	import SignalTierBadge from '$lib/components/SignalTierBadge.svelte';
 
@@ -63,7 +60,9 @@
 				{recruiters.length} total
 				{#if overdueCount > 0}
 					·
-					<span style="color: #f59e0b">{overdueCount} overdue follow-up{overdueCount === 1 ? '' : 's'}</span>
+					<span style="color: #f59e0b"
+						>{overdueCount} overdue follow-up{overdueCount === 1 ? '' : 's'}</span
+					>
 				{/if}
 			</p>
 		</div>
@@ -150,7 +149,9 @@
 				{/if}
 
 				<p class="mt-1 text-xs" style="color: var(--color-text-muted)">
-					Last touch: {r.dateLastTouch} · {r.touches.length} touch{r.touches.length === 1 ? '' : 'es'}
+					Last touch: {r.dateLastTouch} · {r.touches.length} touch{r.touches.length === 1
+						? ''
+						: 'es'}
 					{#if linked.length > 0}
 						· {linked.length} app{linked.length === 1 ? '' : 's'}
 					{/if}
@@ -182,7 +183,9 @@
 								{#each [...r.touches].reverse() as t}
 									<li class="text-xs">
 										<span style="color: var(--color-text-muted)">{t.date}</span>
-										<span style="color: var(--color-neon)"> · {t.direction === 'in' ? '←' : '→'} </span>
+										<span style="color: var(--color-neon)">
+											· {t.direction === 'in' ? '←' : '→'}
+										</span>
 										<span style="color: var(--color-text-muted)">{t.channel}</span>
 										<span style="color: var(--color-text-secondary)"> — {t.summary}</span>
 									</li>
@@ -207,7 +210,9 @@
 											>
 												{app.id}
 											</a>
-											<span style="color: var(--color-text-secondary)"> · {app.company} — {app.role}</span>
+											<span style="color: var(--color-text-secondary)">
+												· {app.company} — {app.role}</span
+											>
 										</li>
 									{/each}
 								</ul>
@@ -278,11 +283,14 @@
 	</div>
 
 	<!-- Persistence note (matches Applications page convention) -->
-	<div class="rounded-xl p-4" style="background: rgba(255,255,255,0.02); border: 1px dashed var(--color-border)">
+	<div
+		class="rounded-xl p-4"
+		style="background: rgba(255,255,255,0.02); border: 1px dashed var(--color-border)"
+	>
 		<p class="text-xs" style="color: var(--color-text-muted)">
 			Recruiter entries live in
-			<code style="color: var(--color-neon)">src/lib/data/personal/recruiters.ts</code>.
-			Update that file directly to log touches, change status, or link applications via the
+			<code style="color: var(--color-neon)">src/lib/data/personal/recruiters.ts</code>. Update that
+			file directly to log touches, change status, or link applications via the
 			<code style="color: var(--color-neon)">recruiterId</code> field on
 			<code style="color: var(--color-neon)">applications.ts</code>.
 		</p>

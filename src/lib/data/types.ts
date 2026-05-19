@@ -12,7 +12,6 @@ export type FitRating = 'HIGH' | 'MEDIUM' | 'LOW' | 'NEEDS_REVIEW';
 /** Priority tiers for job results */
 export type Priority = 'P1' | 'P2' | 'P3' | 'SKIP';
 
-
 /** Readiness state for an application */
 export type DeployStatus = 'deploy-ready' | 'research' | 'none';
 
@@ -184,7 +183,15 @@ export interface CompanyTarget {
 
 export type InterviewPlatform = 'Teams' | 'Zoom' | 'Google Meet' | 'Phone' | 'In-person' | 'Other';
 export type InterviewStatus = 'scheduled' | 'completed' | 'cancelled' | 'rescheduled';
-export type InterviewRound = 'recruiter-screen' | 'hiring-manager' | 'technical' | 'system-design' | 'behavioral' | 'panel' | 'final' | 'offer-call';
+export type InterviewRound =
+	| 'recruiter-screen'
+	| 'hiring-manager'
+	| 'technical'
+	| 'system-design'
+	| 'behavioral'
+	| 'panel'
+	| 'final'
+	| 'offer-call';
 
 export interface Interview {
 	id: string;
@@ -272,24 +279,18 @@ export interface ResearchEntry {
 
 /** Where in the relationship a recruiter is */
 export type RecruiterStatus =
-	| 'active'           // active back-and-forth conversation
-	| 'awaiting-reply'   // Owner sent something, waiting on them
-	| 'cold-pitched'     // they pitched, Owner hasn't replied yet
-	| 'declined'         // Owner declined or they passed — warm close
-	| 'placed'           // they successfully placed Owner (historical)
-	| 'closed';          // dead thread, no further activity expected
+	| 'active' // active back-and-forth conversation
+	| 'awaiting-reply' // Owner sent something, waiting on them
+	| 'cold-pitched' // they pitched, Owner hasn't replied yet
+	| 'declined' // Owner declined or they passed — warm close
+	| 'placed' // they successfully placed Owner (historical)
+	| 'closed'; // dead thread, no further activity expected
 
 /** Signal quality of the staffing firm — pulls from reference_dice_staffing_firm_triage.md */
 export type SignalTier = 'signal' | 'noise' | 'unrated';
 
 /** What kind of roles the recruiter sends */
-export type RoleFocus =
-	| 'frontend'
-	| 'fullstack'
-	| 'video'
-	| 'backend'
-	| 'staff-plus'
-	| 'mixed';
+export type RoleFocus = 'frontend' | 'fullstack' | 'video' | 'backend' | 'staff-plus' | 'mixed';
 
 /** Engagement type the recruiter handles */
 export type ContractType = 'contract' | 'c2h' | 'permanent' | 'mixed';
@@ -298,13 +299,7 @@ export type ContractType = 'contract' | 'c2h' | 'permanent' | 'mixed';
 export type TouchDirection = 'in' | 'out';
 
 /** Channel a touch happened on */
-export type TouchChannel =
-	| 'email'
-	| 'phone'
-	| 'voicemail'
-	| 'linkedin'
-	| 'sms'
-	| 'meeting';
+export type TouchChannel = 'email' | 'phone' | 'voicemail' | 'linkedin' | 'sms' | 'meeting';
 
 export interface RecruiterTouch {
 	/** ISO YYYY-MM-DD */
