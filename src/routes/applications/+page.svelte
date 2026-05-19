@@ -217,7 +217,7 @@
 
 	{#if viewMode === 'kanban'}
 		<!-- Kanban board -->
-		<div class="flex gap-4 overflow-x-auto pb-4" style="min-height: 60vh">
+		<div class="kanban-scroll flex gap-4 overflow-x-auto pb-4" style="min-height: 60vh">
 			{#each columns as col}
 				{@const cards = grouped[col.status] ?? []}
 				<div class="flex w-72 shrink-0 flex-col gap-3">
@@ -450,3 +450,29 @@
 		</p>
 	</div>
 </div>
+
+<style>
+	/* Always-visible horizontal scrollbar for the kanban board */
+	.kanban-scroll {
+		scrollbar-width: thin;
+		scrollbar-color: rgba(57, 255, 20, 0.4) rgba(255, 255, 255, 0.06);
+	}
+	.kanban-scroll::-webkit-scrollbar {
+		height: 12px;
+	}
+	.kanban-scroll::-webkit-scrollbar-track {
+		background: rgba(255, 255, 255, 0.06);
+		border-radius: 6px;
+	}
+	.kanban-scroll::-webkit-scrollbar-thumb {
+		background: rgba(57, 255, 20, 0.35);
+		border-radius: 6px;
+		border: 2px solid transparent;
+		background-clip: padding-box;
+	}
+	.kanban-scroll::-webkit-scrollbar-thumb:hover {
+		background: rgba(57, 255, 20, 0.6);
+		background-clip: padding-box;
+		border: 2px solid transparent;
+	}
+</style>
