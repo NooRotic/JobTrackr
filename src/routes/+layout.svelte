@@ -27,6 +27,7 @@
 		{ href: '/searches', label: 'Searches', icon: '⌕' },
 		{ href: '/targets', label: 'Targets', icon: '◎' },
 		{ href: '/applications', label: 'Applications', icon: '▣' },
+		{ href: '/recruiters', label: 'Recruiters', icon: '☎' },
 		{ href: '/companies', label: 'Companies', icon: '⬡' },
 		{ href: '/research', label: 'Research', icon: '⊞' },
 		{ href: '/analyze', label: 'Analyze', icon: '⊘' },
