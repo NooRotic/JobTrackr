@@ -25,6 +25,7 @@ import { titleAnalytics as demoAnalytics } from './titleAnalytics';
 import { profile as demoProfile } from './profile';
 import { prepData as demoPrep } from './prep';
 import { research as demoResearch } from './research';
+import { recruiters as demoRecruiters } from './recruiters';
 
 export { calculateConfidence, priorityFromConfidence };
 export {
@@ -69,6 +70,7 @@ let titleAnalytics = demoAnalytics;
 let profile = demoProfile;
 let prepData = demoPrep;
 let research = demoResearch;
+let recruiters = demoRecruiters;
 
 if (!isDemoMode()) {
 	try {
@@ -108,6 +110,10 @@ if (!isDemoMode()) {
 		const p = await import('./personal/research');
 		research = p.research;
 	} catch {}
+	try {
+		const p = await import('./personal/recruiters');
+		recruiters = p.recruiters;
+	} catch {}
 }
 
 export {
@@ -120,7 +126,8 @@ export {
 	titleAnalytics,
 	profile,
 	prepData,
-	research
+	research,
+	recruiters
 };
 
 export type {
@@ -146,5 +153,13 @@ export type {
 	PrepData,
 	ResearchEntry,
 	ResearchCategory,
-	ScoreDimensions
+	ScoreDimensions,
+	Recruiter,
+	RecruiterStatus,
+	RecruiterTouch,
+	SignalTier,
+	RoleFocus,
+	ContractType,
+	TouchDirection,
+	TouchChannel
 } from './types';
