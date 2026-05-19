@@ -26,13 +26,22 @@ export interface LinkHealthData {
 
 let _data: LinkHealthData | null = null;
 
+// Vite's import.meta.glob resolves to {} at build time when no files match,
+// so this works even when src/lib/data/generated/ is gitignored / empty in CI.
+const generated = import.meta.glob<{ default: LinkHealthData }>(
+	'./generated/link-health.json'
+);
+
 export async function loadLinkHealth(): Promise<LinkHealthData | null> {
 	if (_data) return _data;
 	if (!browser) return null;
 
+	const loader = generated['./generated/link-health.json'];
+	if (!loader) return null;
+
 	try {
-		const mod = await import('./generated/link-health.json');
-		_data = mod.default as LinkHealthData;
+		const mod = await loader();
+		_data = mod.default;
 		return _data;
 	} catch {
 		return null;
