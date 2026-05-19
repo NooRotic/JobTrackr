@@ -146,5 +146,13 @@ export type {
 	PrepData,
 	ResearchEntry,
 	ResearchCategory,
-	ScoreDimensions
+	ScoreDimensions,
+	Recruiter,
+	RecruiterStatus,
+	RecruiterTouch,
+	SignalTier,
+	RoleFocus,
+	ContractType,
+	TouchDirection,
+	TouchChannel
 } from './types';
