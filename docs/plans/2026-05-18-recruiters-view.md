@@ -493,8 +493,8 @@ export const recruiters: Recruiter[] = [
 			},
 			{
 				date: '2026-05-11',
-				direction: 'meeting',
-				channel: 'phone',
+				direction: 'in',
+				channel: 'meeting',
 				summary: 'Phone call: client de-anonymized as OpenSesame, rate $125 W2/$120 C2C floated, Walter countered $125-150'
 			}
 		],
