@@ -72,48 +72,55 @@ let prepData = demoPrep;
 let research = demoResearch;
 let recruiters = demoRecruiters;
 
+// Vite's import.meta.glob resolves to {} at build time when no files match,
+// so personal/ files can be gitignored without breaking the CI build.
+const personalModules = import.meta.glob<Record<string, unknown>>(
+	'./personal/*.ts'
+);
+
+async function loadPersonal(name: string): Promise<Record<string, unknown> | null> {
+	const loader = personalModules[`./personal/${name}.ts`];
+	if (!loader) return null;
+	try {
+		return await loader();
+	} catch {
+		return null;
+	}
+}
+
 if (!isDemoMode()) {
-	try {
-		const p = await import('./personal/searches');
-		searches = p.searches;
-	} catch {}
-	try {
-		const p = await import('./personal/applications');
-		applications = p.applications;
-	} catch {}
-	try {
-		const p = await import('./personal/companies');
-		companies = p.companies;
-	} catch {}
-	try {
-		const p = await import('./personal/activity');
-		activity = p.activity;
-	} catch {}
-	try {
-		const p = await import('./personal/targets');
-		companyTargets = p.companyTargets;
-		jobTitleCategories = p.jobTitleCategories;
-	} catch {}
-	try {
-		const p = await import('./personal/titleAnalytics');
-		titleAnalytics = p.titleAnalytics;
-	} catch {}
-	try {
-		const p = await import('./personal/profile');
-		profile = p.profile;
-	} catch {}
-	try {
-		const p = await import('./personal/prep');
-		prepData = p.prepData;
-	} catch {}
-	try {
-		const p = await import('./personal/research');
-		research = p.research;
-	} catch {}
-	try {
-		const p = await import('./personal/recruiters');
-		recruiters = p.recruiters;
-	} catch {}
+	const p1 = await loadPersonal('searches');
+	if (p1) searches = p1.searches as typeof demoSearches;
+
+	const p2 = await loadPersonal('applications');
+	if (p2) applications = p2.applications as typeof demoApplications;
+
+	const p3 = await loadPersonal('companies');
+	if (p3) companies = p3.companies as typeof demoCompanies;
+
+	const p4 = await loadPersonal('activity');
+	if (p4) activity = p4.activity as typeof demoActivity;
+
+	const p5 = await loadPersonal('targets');
+	if (p5) {
+		companyTargets = p5.companyTargets as typeof demoTargets;
+		jobTitleCategories = p5.jobTitleCategories as typeof demoCats;
+	}
+
+	const p6 = await loadPersonal('titleAnalytics');
+	if (p6) titleAnalytics = p6.titleAnalytics as typeof demoAnalytics;
+
+	const p7 = await loadPersonal('profile');
+	if (p7) profile = p7.profile as typeof demoProfile;
+
+	const p8 = await loadPersonal('prep');
+	if (p8) prepData = p8.prepData as typeof demoPrep;
+
+	const p9 = await loadPersonal('research');
+	if (p9) research = p9.research as typeof demoResearch;
+
+	const p10 = await loadPersonal('recruiters');
+	if (p10) recruiters = p10.recruiters as typeof demoRecruiters;
 }
 
 export {
