@@ -96,7 +96,7 @@ If you want an app that auto-applies to 500 jobs and writes your cover letter, t
 ## Getting Started
 
 ```bash
-git clone https://github.com/OwnerHandle/JobTrackr.git
+git clone https://github.com/NooRotic/JobTrackr.git
 cd JobTrackr
 bun install
 bun run dev

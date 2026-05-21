@@ -132,7 +132,7 @@
 			<div>
 				<p class="text-xs" style="color: var(--color-text-muted)">Open source — MIT License</p>
 				<a
-					href="https://github.com/OwnerHandle/JobTrackr"
+					href="https://github.com/NooRotic/JobTrackr"
 					target="_blank"
 					rel="noopener noreferrer"
 					class="mt-1 inline-flex items-center gap-1 text-xs transition-colors hover:text-white"
