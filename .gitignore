@@ -30,3 +30,16 @@ src/lib/data/generated/
 
 # Social media copy (personal, not for repo)
 docs/social_media.md
+
+# Implementation plans (often contain real seed data — keep private)
+docs/plans/
+
+# Local-only routes (real personal data — never ship publicly)
+src/routes/income/
+
+# Link-checker output (real ATS URLs from personal pipeline)
+check-links-output.json
+tmp/
+
+# Local Claude config
+.claude/

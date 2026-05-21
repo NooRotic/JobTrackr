@@ -1,7 +1,7 @@
 <script lang="ts">
 	import './layout.css';
 	import { page } from '$app/stores';
-	import { browser } from '$app/environment';
+	import { browser, dev } from '$app/environment';
 
 	let { children } = $props();
 
@@ -33,7 +33,8 @@
 		{ href: '/analyze', label: 'Analyze', icon: '⊘' },
 		{ href: '/analytics', label: 'Analytics', icon: '◆' },
 		{ href: '/prep', label: 'Prep', icon: '◧' },
-		{ href: '/profile', label: 'Profile', icon: '◉' }
+		{ href: '/profile', label: 'Profile', icon: '◉' },
+		...(dev ? [{ href: '/income', label: 'Income', icon: '$' }] : [])
 	];
 
 	function isActive(href: string, currentPath: string): boolean {
