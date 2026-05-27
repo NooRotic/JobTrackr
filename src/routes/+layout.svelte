@@ -2,6 +2,7 @@
 	import './layout.css';
 	import { page } from '$app/stores';
 	import { browser, dev } from '$app/environment';
+	import { base } from '$app/paths';
 
 	let { children } = $props();
 
@@ -38,8 +39,9 @@
 	];
 
 	function isActive(href: string, currentPath: string): boolean {
-		if (href === '/') return currentPath === '/';
-		return currentPath.startsWith(href);
+		const path = currentPath.slice(base.length) || '/';
+		if (href === '/') return path === '/';
+		return path.startsWith(href);
 	}
 </script>
 
@@ -87,7 +89,7 @@
 			{#each navItems as item}
 				{@const active = isActive(item.href, $page.url.pathname)}
 				<a
-					href={item.href}
+					href="{base}{item.href}"
 					onclick={() => (sidebarOpen = false)}
 					class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150"
 					style={active

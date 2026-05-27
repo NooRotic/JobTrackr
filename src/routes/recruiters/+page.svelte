@@ -4,6 +4,7 @@
 	import { RECRUITER_STATUS_CONFIG, ALL_RECRUITER_STATUSES } from '$lib/data/recruiterStates';
 	import RecruiterStatusBadge from '$lib/components/RecruiterStatusBadge.svelte';
 	import SignalTierBadge from '$lib/components/SignalTierBadge.svelte';
+	import { base } from '$app/paths';
 
 	const TODAY = new Date().toISOString().split('T')[0];
 
@@ -203,7 +204,7 @@
 									{#each linked as app}
 										<li class="text-xs">
 											<a
-												href="/applications"
+												href="{base}/applications"
 												class="transition-colors hover:opacity-80"
 												style="color: var(--color-neon)"
 												onclick={(e) => e.stopPropagation()}

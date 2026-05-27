@@ -8,6 +8,7 @@
 	import { PIPELINE_STATUSES, STATUS_COLORS } from '$lib/data/states';
 	import { scoreLabel } from '$lib/data/scoring';
 	import { loadLinkHealth, type LinkHealthData } from '$lib/data/linkHealth';
+	import { base } from '$app/paths';
 
 	// Link health (loaded async from generated JSON)
 	let linkHealth = $state<LinkHealthData | null>(null);
@@ -177,14 +178,14 @@
 
 	<!-- Stats grid — compact, clickable -->
 	<div class="stagger-children grid grid-cols-3 gap-2 sm:grid-cols-6">
-		<StatCard label="Applied" value={totalApplications} icon="◎" trend="{applications.filter(a => a.status === 'applied').length} pending" href="/applications" />
-		<StatCard label="P1 Leads" value={p1Count} icon="★" accent={true} href="/searches" />
-		<StatCard label="Interviews" value={interviewsScheduled} icon="◆" href="/applications" />
-		<StatCard label="Offers" value={offers} icon="✓" href="/applications" />
-		<StatCard label="Searches" value={activeSearches} icon="⌕" trend="{totalSearchResults} results" href="/searches" />
-		<StatCard label="Targets" value={companiesTargeted} icon="◎" href="/targets" />
+		<StatCard label="Applied" value={totalApplications} icon="◎" trend="{applications.filter(a => a.status === 'applied').length} pending" href="{base}/applications" />
+		<StatCard label="P1 Leads" value={p1Count} icon="★" accent={true} href="{base}/searches" />
+		<StatCard label="Interviews" value={interviewsScheduled} icon="◆" href="{base}/applications" />
+		<StatCard label="Offers" value={offers} icon="✓" href="{base}/applications" />
+		<StatCard label="Searches" value={activeSearches} icon="⌕" trend="{totalSearchResults} results" href="{base}/searches" />
+		<StatCard label="Targets" value={companiesTargeted} icon="◎" href="{base}/targets" />
 		{#if avgScore}
-			<StatCard label="Avg Score" value="{avgScore}/5" icon="◇" trend="{scoreLabel(avgScore)} · {scoredApps.length} scored" href="/applications" />
+			<StatCard label="Avg Score" value="{avgScore}/5" icon="◇" trend="{scoreLabel(avgScore)} · {scoredApps.length} scored" href="{base}/applications" />
 		{/if}
 		{#if linkHealth}
 			<StatCard
@@ -204,7 +205,7 @@
 				<h2 class="text-sm font-semibold uppercase tracking-widest" style="color: var(--color-neon)">
 					Top Leads
 				</h2>
-				<a href="/searches" class="text-xs transition-colors hover:text-white" style="color: var(--color-text-muted)">
+				<a href="{base}/searches" class="text-xs transition-colors hover:text-white" style="color: var(--color-text-muted)">
 					All →
 				</a>
 			</div>
@@ -294,7 +295,7 @@
 				<h2 class="text-sm font-semibold uppercase tracking-widest" style="color: var(--color-text-secondary)">
 					Recent Applications
 				</h2>
-				<a href="/applications" class="text-xs transition-colors hover:text-white" style="color: var(--color-text-muted)">
+				<a href="{base}/applications" class="text-xs transition-colors hover:text-white" style="color: var(--color-text-muted)">
 					All →
 				</a>
 			</div>
@@ -348,7 +349,7 @@
 				<h2 class="text-sm font-semibold uppercase tracking-widest" style="color: var(--color-text-secondary)">
 					Recent Activity
 				</h2>
-				<a href="/applications" class="text-xs transition-colors hover:text-white" style="color: var(--color-text-muted)">
+				<a href="{base}/applications" class="text-xs transition-colors hover:text-white" style="color: var(--color-text-muted)">
 					All applications →
 				</a>
 			</div>
