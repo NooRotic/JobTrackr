@@ -4,6 +4,26 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<link rel="icon" type="image/png" href="%sveltekit.assets%/favicon.png" />
+
+		<!-- Social preview / SEO (static so scrapers see it — SPA head injection is client-side only).
+		     og:image MUST be absolute; relative paths break for scrapers under the /JobTrackr/ base. -->
+		<title>JobTrackr — Developer-First Job Search Dashboard</title>
+		<meta name="description" content="A developer-first job-search dashboard built with SvelteKit 5, Svelte 5, Tailwind, and Bun. Track applications, pipeline, company targets, and interview prep — no database, no backend." />
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="JobTrackr" />
+		<meta property="og:title" content="JobTrackr — Developer-First Job Search Dashboard" />
+		<meta property="og:description" content="Track applications, pipeline, company targets, and interview prep. Built with SvelteKit 5, Svelte 5, Tailwind, and Bun. Open source, MIT." />
+		<meta property="og:url" content="https://noorotic.github.io/JobTrackr/" />
+		<meta property="og:image" content="https://noorotic.github.io/JobTrackr/og.png" />
+		<meta property="og:image:type" content="image/png" />
+		<meta property="og:image:width" content="1200" />
+		<meta property="og:image:height" content="630" />
+		<meta property="og:image:alt" content="JobTrackr — developer-first job search dashboard" />
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content="JobTrackr — Developer-First Job Search Dashboard" />
+		<meta name="twitter:description" content="Track applications, pipeline, company targets, and interview prep. SvelteKit 5 + Bun. Open source." />
+		<meta name="twitter:image" content="https://noorotic.github.io/JobTrackr/og.png" />
+		<meta name="twitter:image:alt" content="JobTrackr — developer-first job search dashboard" />
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">
