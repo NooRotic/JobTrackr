@@ -1,17 +1,26 @@
 <script lang="ts">
-	import { applications } from '$lib/data';
+	import { applications, sortByRecency, sortBySubmitQueue, nextUp } from '$lib/data';
+	import NextUpPanel from '$lib/components/NextUpPanel.svelte';
 	import StatusBadge from '$lib/components/StatusBadge.svelte';
 	import DeployBadge from '$lib/components/DeployBadge.svelte';
 	import LegitimacyBadge from '$lib/components/LegitimacyBadge.svelte';
+	import VerifiedBadge from '$lib/components/VerifiedBadge.svelte';
 	import { assessLegitimacy, type LegitimacyTier } from '$lib/data/legitimacy';
 	import { loadLinkHealth, getLinkStatus, type LinkHealthData } from '$lib/data/linkHealth';
+
+	const today = new Date().toLocaleDateString('en-CA');
 
 	let linkHealth = $state<LinkHealthData | null>(null);
 	loadLinkHealth().then((d) => (linkHealth = d));
 
-	const applied = applications.filter((a) => a.status === 'applied');
-	const deployReady = applications.filter((a) => a.status === 'saved' && a.deployStatus === 'deploy-ready');
-	const research = applications.filter((a) => a.status === 'saved' && a.deployStatus === 'research');
+	const applied = sortByRecency(applications.filter((a) => a.status === 'applied'));
+	// Submit-queue order, not recency: this section IS the send-next list.
+	const deployReady = sortBySubmitQueue(
+		applications.filter((a) => a.status === 'saved' && a.deployStatus === 'deploy-ready')
+	);
+	const research = sortByRecency(
+		applications.filter((a) => a.status === 'saved' && a.deployStatus === 'research')
+	);
 
 	// Legitimacy summary for applied apps
 	const legitimacySummary = $derived(() => {
@@ -46,6 +55,9 @@
 			{/if}
 		{/if}
 	</div>
+
+	<!-- To-dos: the same Next Up list the home page shows, so tasks sit above the pipeline -->
+	<NextUpPanel items={nextUp} {today} />
 
 	<!-- Applied -->
 	<div>
@@ -101,12 +113,25 @@
 		</h2>
 		<div class="space-y-3">
 			{#each deployReady as app}
-				<div class="card overflow-hidden" style="border-color: rgba(57,255,20,0.12)">
+				{@const ranked = app.submitPriority != null}
+				{@const canApply = app.url && app.url !== '#' && app.verifiedStatus !== 'dead'}
+				<div
+					class="card overflow-hidden"
+					style="border-color: {ranked ? 'rgba(57,255,20,0.35)' : 'rgba(57,255,20,0.12)'}"
+				>
 					<div class="flex flex-col gap-3 p-4 sm:flex-row sm:items-start sm:justify-between">
 						<div class="min-w-0 flex-1">
 							<div class="flex flex-wrap items-center gap-2">
+								{#if ranked}
+									<span
+										class="inline-flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold"
+										style="background: var(--color-neon); color: #000"
+										title="Submit queue position"
+									>{app.submitPriority}</span>
+								{/if}
 								<span class="text-sm font-bold" style="color: var(--color-text-primary)">{app.company}</span>
 								<DeployBadge status={app.deployStatus} />
+								<VerifiedBadge status={app.verifiedStatus} date={app.lastVerified} note={app.verifyNote} />
 								{#if app.remote}
 									<span class="text-xs" style="color: var(--color-text-muted)">🌐 Remote</span>
 								{:else}
@@ -115,6 +140,9 @@
 							</div>
 							<p class="mt-1 text-sm" style="color: var(--color-text-secondary)">{app.role}</p>
 							<p class="mt-1 text-sm font-medium" style="color: var(--color-neon)">{app.salary}</p>
+							{#if app.verifiedStatus === 'unverifiable' && app.verifyNote}
+								<p class="mt-2 text-xs leading-relaxed" style="color: #fbbf24">⚠ {app.verifyNote}</p>
+							{/if}
 							{#if app.notes}
 								<p class="mt-2 text-xs leading-relaxed" style="color: var(--color-text-muted)">{app.notes}</p>
 							{/if}
@@ -122,13 +150,19 @@
 								<p class="mt-1 text-[10px]" style="color: var(--color-text-muted)">📁 {app.deployPath}</p>
 							{/if}
 						</div>
-						<div class="flex shrink-0 gap-2">
-							{#if app.url && app.url !== '#'}
+						<div class="flex shrink-0 flex-col gap-2">
+							{#if canApply}
 								<a href={app.url} target="_blank" rel="noopener noreferrer"
-									class="rounded-lg px-4 py-2 text-xs font-medium transition-all hover:opacity-80"
+									class="whitespace-nowrap rounded-lg px-4 py-2 text-center text-xs font-medium transition-all hover:opacity-80"
 									style="background: rgba(57,255,20,0.12); color: var(--color-neon); border: 1px solid rgba(57,255,20,0.25)">
 									Apply Now ↗
 								</a>
+							{:else}
+								<span
+									class="whitespace-nowrap rounded-lg px-4 py-2 text-center text-xs font-medium"
+									style="background: rgba(245,158,11,0.1); color: #fbbf24; border: 1px solid rgba(245,158,11,0.25)"
+									title={app.verifyNote ?? 'No usable apply URL on record'}
+								>No apply URL</span>
 							{/if}
 						</div>
 					</div>
