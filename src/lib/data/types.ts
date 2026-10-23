@@ -5,12 +5,56 @@ export type ApplicationStatus =
 	| 'interview'
 	| 'offer'
 	| 'accepted'
-	| 'rejected';
+	| 'rejected'
+	/** Listing died before it was ever submitted. Distinct from 'rejected' (they said no). */
+	| 'expired';
 
 export type FitRating = 'HIGH' | 'MEDIUM' | 'LOW' | 'NEEDS_REVIEW';
 
+/**
+ * Priority band for the morning Next Up list.
+ * P0 = hard deadline or compliance. P1 = live conversation actively going cold.
+ * P2 = ready to ship. P3 = relationship upkeep. P4 = housekeeping, nothing on fire.
+ */
+export type NextUpPriority = 'P0' | 'P1' | 'P2' | 'P3' | 'P4';
+
+export type NextUpKind = 'deadline' | 'email' | 'submit' | 'call' | 'admin';
+
+export interface NextUpItem {
+	id: string;
+	priority: NextUpPriority;
+	kind: NextUpKind;
+	title: string;
+	/** One line on what this actually is. */
+	detail?: string;
+	/** Why it is where it is in the list. The part that stops it being re-litigated each morning. */
+	why?: string;
+	/** ISO date with a real deadline attached. Drives the days-left countdown. */
+	due?: string;
+	/** ISO date this has been waiting since. Drives the days-cold counter. */
+	waitingSince?: string;
+	/** Where the material already lives, if it is already written. */
+	source?: string;
+	href?: string;
+	done?: boolean;
+}
+
 /** Priority tiers for job results */
-export type Priority = 'P1' | 'P2' | 'P3' | 'SKIP';
+/**
+ * Two independent ladders, added 2026-09-10 at Walter's direction.
+ *
+ *   P1..P3  = software career. P1 is the best match to 25 years of frontend/video work.
+ *   N1..N3  = "normie" non-tech. N1 is the best non-tech job he would actually take.
+ *
+ * They are NOT comparable to each other. An N1 is not a demoted P1; it is the top of a
+ * separate list, ranked on: can he get hired, can he get there, how fast does it pay.
+ * Keeping them separate stops the non-tech list from reading as failure and stops the
+ * tech list from burying a job that could pay a bill next week.
+ *
+ * HELD = borderline, never dropped. Carries a reason and a resolver. See
+ * feedback_held_leads_process: one soft signal must never end a JD review.
+ */
+export type Priority = 'P1' | 'P2' | 'P3' | 'N1' | 'N2' | 'N3' | 'HELD' | 'SKIP';
 
 /** Readiness state for an application */
 export type DeployStatus = 'deploy-ready' | 'research' | 'none';
@@ -80,6 +124,23 @@ export interface Application {
 	score?: number;
 	/** Per-dimension breakdown */
 	scoreDimensions?: ScoreDimensions;
+	/**
+	 * Manual submit-queue rank for deploy-ready packages. Lower = send sooner.
+	 * Deliberately separate from dateSaved: the newest package is not always the one
+	 * to send first (comp, fit, and confirmed-live status all outrank recency).
+	 * Unset = unranked, sorts after everything ranked.
+	 */
+	submitPriority?: number;
+	/** ISO date the listing was last verified against the EMPLOYER'S OWN source, not an aggregator. */
+	lastVerified?: string;
+	/**
+	 * Result of that verification.
+	 * 'unverifiable' = we could not tell (bot-blocked, or the stored url isn't a real posting).
+	 * It is NOT a synonym for dead, and must not be rendered as one.
+	 */
+	verifiedStatus?: 'live' | 'dead' | 'unverifiable';
+	/** Why verification failed, when verifiedStatus is 'unverifiable'. Shown in the UI. */
+	verifyNote?: string;
 }
 
 export interface SearchResult {
