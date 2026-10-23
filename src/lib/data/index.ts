@@ -9,6 +9,7 @@
  */
 
 import { browser } from '$app/environment';
+import type { Application } from './types';
 
 // Demo data (always available, committed to repo)
 import { searches as demoSearches } from './searches';
@@ -26,8 +27,60 @@ import { profile as demoProfile } from './profile';
 import { prepData as demoPrep } from './prep';
 import { research as demoResearch } from './research';
 import { recruiters as demoRecruiters } from './recruiters';
+import { nextUp as demoNextUp } from './nextUp';
 
 export { calculateConfidence, priorityFromConfidence };
+
+/**
+ * Canonical "most recent first" ordering for applications.
+ *
+ * The source arrays are authored oldest-first (app-001 -> app-131), and `.filter()`
+ * preserves that order. Any view that filtered without sorting was therefore showing
+ * the OLDEST packages at the top of the list/board. Import this and sort explicitly.
+ *
+ * Sorts on dateApplied when the application has moved (that's the event that matters),
+ * falling back to dateSaved for anything still sitting in saved/research. Ties break on
+ * the numeric id descending, which matters a lot here: bulk wide-sweep days write many
+ * entries with an identical dateSaved, and without the tiebreak those still render in
+ * authoring order (oldest first) inside the day.
+ */
+function idNum(id: string): number {
+	const m = /(\d+)\s*$/.exec(id);
+	return m ? Number(m[1]) : 0;
+}
+
+export function byRecency(a: Application, b: Application): number {
+	const key = (x: Application) => x.dateApplied ?? x.dateSaved ?? '';
+	const cmp = key(b).localeCompare(key(a));
+	return cmp !== 0 ? cmp : idNum(b.id) - idNum(a.id);
+}
+
+/** Non-mutating `[...apps].sort(byRecency)`. Use in views so the source array is untouched. */
+export function sortByRecency(apps: readonly Application[]): Application[] {
+	return [...apps].sort(byRecency);
+}
+
+/**
+ * Submit-queue ordering for anything that represents "what do I send next."
+ *
+ * Explicitly ranked packages (`submitPriority`) come first in rank order; everything
+ * unranked falls through to `byRecency`. The two orderings are deliberately different:
+ * recency answers "what happened last," submit priority answers "what should go out
+ * first," and the newest package is frequently NOT the best one to send. Whatnot was
+ * saved 2026-05-11 and is rank 1 on comp + confirmed-live; Stitch Fix was saved
+ * 2026-07-31 and is rank 5.
+ */
+export function bySubmitQueue(a: Application, b: Application): number {
+	const ra = a.submitPriority ?? Number.POSITIVE_INFINITY;
+	const rb = b.submitPriority ?? Number.POSITIVE_INFINITY;
+	if (ra !== rb) return ra - rb;
+	return byRecency(a, b);
+}
+
+/** Non-mutating submit-queue sort. */
+export function sortBySubmitQueue(apps: readonly Application[]): Application[] {
+	return [...apps].sort(bySubmitQueue);
+}
 export {
 	STATUS_CONFIG,
 	STATUS_MAP,
@@ -71,6 +124,7 @@ let profile = demoProfile;
 let prepData = demoPrep;
 let research = demoResearch;
 let recruiters = demoRecruiters;
+let nextUp = demoNextUp;
 
 // Vite's import.meta.glob resolves to {} at build time when no files match,
 // so personal/ files can be gitignored without breaking the CI build.
@@ -121,6 +175,9 @@ if (!isDemoMode()) {
 
 	const p10 = await loadPersonal('recruiters');
 	if (p10) recruiters = p10.recruiters as typeof demoRecruiters;
+
+	const p11 = await loadPersonal('nextUp');
+	if (p11) nextUp = p11.nextUp as typeof demoNextUp;
 }
 
 export {
@@ -134,7 +191,8 @@ export {
 	profile,
 	prepData,
 	research,
-	recruiters
+	recruiters,
+	nextUp
 };
 
 export type {
@@ -168,5 +226,8 @@ export type {
 	RoleFocus,
 	ContractType,
 	TouchDirection,
-	TouchChannel
+	TouchChannel,
+	NextUpItem,
+	NextUpPriority,
+	NextUpKind
 } from './types';

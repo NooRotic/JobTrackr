@@ -86,6 +86,19 @@ export const STATUS_CONFIG: StatusConfig[] = [
 		transitions: [],
 		terminal: true,
 		pipeline: false
+	},
+	{
+		// Listing died before submission. Terminal, and kept OUT of the pipeline so dead
+		// packages stop occupying the deploy-ready queue. Matches the applications/expired/
+		// folder taxonomy. This status was already present in the data before it existed
+		// in the type union.
+		status: 'expired',
+		label: 'Expired',
+		color: '#71717a',
+		badgeClass: 'bg-zinc-500/15 text-zinc-400 border-zinc-500/30',
+		transitions: [],
+		terminal: true,
+		pipeline: false
 	}
 ];
 
