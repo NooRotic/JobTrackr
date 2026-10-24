@@ -1,7 +1,7 @@
 <script lang="ts">
 	import './layout.css';
 	import { page } from '$app/stores';
-	import { browser, dev } from '$app/environment';
+	import { browser } from '$app/environment';
 	import { base } from '$app/paths';
 
 	let { children } = $props();
@@ -34,8 +34,10 @@
 		{ href: '/analyze', label: 'Analyze', icon: '⊘' },
 		{ href: '/analytics', label: 'Analytics', icon: '◆' },
 		{ href: '/prep', label: 'Prep', icon: '◧' },
-		{ href: '/profile', label: 'Profile', icon: '◉' },
-		...(dev ? [{ href: '/income', label: 'Income', icon: '$' }] : [])
+		{ href: '/profile', label: 'Profile', icon: '◉' }
+		// '/income' nav item removed 2026-09-12: it linked to a route that does not exist,
+		// so it 404'd every time it was clicked in dev. No income/ route dir and no income data
+		// anywhere in src/. Re-add together with the route if an income view is ever built.
 	];
 
 	function isActive(href: string, currentPath: string): boolean {

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { applications as initialApps } from '$lib/data';
+	import { applications as initialApps, sortBySubmitQueue } from '$lib/data';
 	import StatusBadge from '$lib/components/StatusBadge.svelte';
 	import LinkHealthBadge from '$lib/components/LinkHealthBadge.svelte';
 	import ScoreBadge from '$lib/components/ScoreBadge.svelte';
@@ -37,7 +37,9 @@
 		Object.fromEntries(
 			columns.map((col) => [
 				col.status,
-				apps.filter((a) => a.status === col.status)
+				// Submit-queue order. Only the Saved column has ranked entries, so every
+				// other column degrades to plain recency exactly as before.
+				sortBySubmitQueue(apps.filter((a) => a.status === col.status))
 			])
 		) as Record<ApplicationStatus, Application[]>
 	);

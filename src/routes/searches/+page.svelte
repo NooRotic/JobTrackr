@@ -32,9 +32,12 @@
 		search: SavedSearch;
 	}
 
-	const allResults: FlatResult[] = searches.flatMap((s) =>
-		s.results.map((r) => ({ result: r, search: s }))
-	);
+	// Newest search first. `searches` is authored in no particular date order (the personal
+	// file interleaves 03-21/03-23/03-28 groups), and flatMap preserves that order, so
+	// without this sort the P1 tab led with results from the oldest searches on record.
+	const allResults: FlatResult[] = searches
+		.flatMap((s) => s.results.map((r) => ({ result: r, search: s })))
+		.sort((a, b) => (b.search.date ?? '').localeCompare(a.search.date ?? ''));
 
 	const p1Results = $derived(allResults.filter((r) => r.result.priority === 'P1'));
 	const p2Results = $derived(allResults.filter((r) => r.result.priority === 'P2'));

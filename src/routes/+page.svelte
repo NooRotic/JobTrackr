@@ -1,9 +1,10 @@
 <script lang="ts">
-	import { applications, searches, activity, companyTargets, titleAnalytics, calculateConfidence } from '$lib/data';
+	import { applications, searches, activity, companyTargets, titleAnalytics, calculateConfidence, sortBySubmitQueue, nextUp } from '$lib/data';
 	import StatusBadge from '$lib/components/StatusBadge.svelte';
 	import PriorityBadge from '$lib/components/PriorityBadge.svelte';
 	import DeployBadge from '$lib/components/DeployBadge.svelte';
 	import StatCard from '$lib/components/StatCard.svelte';
+	import NextUpPanel from '$lib/components/NextUpPanel.svelte';
 	import type { ApplicationStatus, SearchResult, Priority } from '$lib/data/types';
 	import { PIPELINE_STATUSES, STATUS_COLORS } from '$lib/data/states';
 	import { scoreLabel } from '$lib/data/scoring';
@@ -13,6 +14,10 @@
 	// Link health (loaded async from generated JSON)
 	let linkHealth = $state<LinkHealthData | null>(null);
 	loadLinkHealth().then((d) => (linkHealth = d));
+
+	// Local calendar date (not UTC) so a late-evening ET session doesn't roll the
+	// deadline countdown a day early. Computed once at load.
+	const today = new Date().toLocaleDateString('en-CA');
 
 	// Computed stats
 	const totalApplications = applications.filter((a) => a.status !== 'saved' && a.status !== 'rejected' && a.status !== 'accepted').length;
@@ -34,16 +39,12 @@
 		.sort((a, b) => (b.dateApplied ?? b.dateSaved ?? '').localeCompare(a.dateApplied ?? a.dateSaved ?? ''))
 		.slice(0, 5);
 
-	// Up Next — deploy-ready saved apps, most recent first
-	const upNext = applications
-		.filter((a) => a.status === 'saved' && a.deployStatus === 'deploy-ready')
-		.sort((a, b) => {
-			const dateDiff = (b.dateSaved ?? '').localeCompare(a.dateSaved ?? '');
-			if (dateDiff !== 0) return dateDiff;
-			// Within same date, lower ID first (added earlier today = ship first)
-			return (a.id ?? '').localeCompare(b.id ?? '');
-		})
-		.slice(0, 4);
+	// Up Next — deploy-ready saved apps in SUBMIT-QUEUE order (explicit submitPriority
+	// first, then recency). Previously sorted by dateSaved, which buried the highest-value
+	// confirmed-live package under whatever was built most recently.
+	const upNext = sortBySubmitQueue(
+		applications.filter((a) => a.status === 'saved' && a.deployStatus === 'deploy-ready')
+	).slice(0, 4);
 
 	// Pipeline stages
 	const pipelineCounts = PIPELINE_STATUSES.map(({ status, label }) => ({
@@ -135,13 +136,16 @@
 		}
 	}
 
-	// Sort: most recent first. Within same date, P1 > P2 > P3, then by confidence
-	const priorityOrder = { P1: 0, P2: 1, P3: 2, SKIP: 3 };
+	// Sort: most recent first. Within the same date, the two ladders INTERLEAVE by rung
+	// — P1, N1, P2, N2, … — so the strongest non-tech lead sits directly under the strongest
+	// tech lead rather than below every P3. Before 2026-09-11 the N rungs were missing from
+	// this map entirely and the fallback silently ranked N1 level with SKIP.
+	const priorityOrder = { P1: 0, N1: 1, P2: 2, N2: 3, P3: 4, N3: 5, HELD: 6, SKIP: 7 };
 	const sortedLeads = allLeads.sort((a, b) => {
 		const dateDiff = (b.sourceDate ?? '').localeCompare(a.sourceDate ?? '');
 		if (dateDiff !== 0) return dateDiff;
-		const pa = priorityOrder[a.priority as keyof typeof priorityOrder] ?? 3;
-		const pb = priorityOrder[b.priority as keyof typeof priorityOrder] ?? 3;
+		const pa = priorityOrder[a.priority as keyof typeof priorityOrder] ?? 7;
+		const pb = priorityOrder[b.priority as keyof typeof priorityOrder] ?? 7;
 		if (pa !== pb) return pa - pb;
 		return (b.confidence ?? 0) - (a.confidence ?? 0);
 	});
@@ -175,6 +179,10 @@
 			Your job search at a glance
 		</p>
 	</div>
+
+	<!-- Next Up — deliberately ABOVE the stats. Stats describe the past; this is the
+	     only block on the page that says what to do next, so it reads first. -->
+	<NextUpPanel items={nextUp} {today} />
 
 	<!-- Stats grid — compact, clickable -->
 	<div class="stagger-children grid grid-cols-3 gap-2 sm:grid-cols-6">
