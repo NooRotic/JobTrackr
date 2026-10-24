@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { applications, searches, companyTargets, titleAnalytics, activity } from '$lib/data';
+	import { applications, searches, companyTargets, titleAnalytics, activity, sortByRecency } from '$lib/data';
 
 	const applied = applications.filter((a) => a.status === 'applied');
 	const screening = applications.filter((a) => a.status === 'screening');
@@ -8,7 +8,8 @@
 	const totalSearchResults = searches.reduce((sum, s) => sum + s.results.length, 0);
 	const p1Results = searches.flatMap((s) => s.results).filter((r) => r.priority === 'P1');
 	const worksTitle = titleAnalytics.filter((t) => t.verdict === 'works');
-	const submittedApps = applications.filter((a) => a.status !== 'saved');
+	// Rendered as a list below, so it needs an explicit order (most recent submission first).
+	const submittedApps = sortByRecency(applications.filter((a) => a.status !== 'saved'));
 
 	const sessionLog = [
 		{
